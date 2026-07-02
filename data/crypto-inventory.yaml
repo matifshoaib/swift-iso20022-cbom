@@ -1,0 +1,373 @@
+# =====================================================================
+# Cryptographic Inventory — Simulated SWIFT / ISO 20022 Wire-Payment Estate
+# ---------------------------------------------------------------------
+# Single source of truth. `scripts/generate_cbom.py` transforms this into
+# a CycloneDX 1.6 Cryptography Bill of Materials (CBOM).
+#
+# This models a *representative* correspondent-banking wire estate, NOT any
+# real institution's configuration. All keys/certs are illustrative.
+#
+# Migration-priority model (Mosca-informed):
+#   P1-CRITICAL  Harvest-Now-Decrypt-Later (HNDL): key establishment /
+#                key transport protecting confidential data whose secrecy
+#                must outlive Q-day (archived payments, PII, long retention).
+#   P2-HIGH      Authentication / signing whose integrity guarantee must
+#                hold at/after Q-day; driven by ITSM.40.001 high-priority
+#                2031 milestone (SWIFT PKI, RTGS liquidity-transfer signing).
+#   P3-MEDIUM    Protocol/version hygiene (TLS 1.2 -> 1.3), ECDSA in certs.
+#   P4-MONITOR   Symmetric / hash primitives — Grover only; remediate by
+#                parameter increase (AES-256, SHA-384), not replacement.
+# =====================================================================
+
+metadata:
+  estate_name: "Correspondent Banking Wire-Payment Estate (Reference Model)"
+  author: "Muhammad Atif — Payments PQC Migration Analysis"
+  description: >
+    Cryptographic dependency map across the cross-border wire-payment
+    lifecycle: corporate initiation (pain.001) -> orchestration ->
+    sanctions screening -> SWIFT messaging (MT103 / pacs.008) -> HSM
+    signing -> RTGS settlement (pacs.009) -> long-term archive.
+
+# ---------------------------------------------------------------------
+# ALGORITHMS
+# ---------------------------------------------------------------------
+algorithms:
+  - ref: rsa-2048-pkcs1-sha256
+    name: "RSA-2048-PKCS1v15-SHA256"
+    primitive: signature
+    algorithmFamily: RSASSA-PKCS1-v1_5
+    parameterSetIdentifier: "2048"
+    padding: pkcs1v15
+    cryptoFunctions: [sign, verify]
+    classicalSecurityLevel: 112
+    nistQuantumSecurityLevel: 0
+    oid: "1.2.840.113549.1.1.11"
+    lifecycle_stage: "SWIFT messaging; RTGS settlement; PKI"
+    touchpoint: "Message & liquidity-transfer signing"
+    quantum_vulnerable: true
+    threat: "Signature forgery once a CRQC exists (integrity/authenticity)"
+    target: "ML-DSA-65 (FIPS 204)"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+
+  - ref: rsa-2048-oaep
+    name: "RSA-2048-OAEP"
+    primitive: pke
+    algorithmFamily: RSA-OAEP
+    parameterSetIdentifier: "2048"
+    padding: oaep
+    cryptoFunctions: [encrypt, decrypt]
+    classicalSecurityLevel: 112
+    nistQuantumSecurityLevel: 0
+    oid: "1.2.840.113549.1.1.7"
+    lifecycle_stage: "Archive; key wrapping"
+    touchpoint: "Wraps AES data-encryption keys for long-term archive"
+    quantum_vulnerable: true
+    threat: "Harvest-Now-Decrypt-Later on archived payment data & PII"
+    target: "ML-KEM-768 (FIPS 203)"
+    hybrid_capable: true
+    migration_priority: P1-CRITICAL
+
+  - ref: ecdsa-p256
+    name: "ECDSA-P256-SHA256"
+    primitive: signature
+    algorithmFamily: ECDSA
+    curve: P-256
+    cryptoFunctions: [sign, verify]
+    classicalSecurityLevel: 128
+    nistQuantumSecurityLevel: 0
+    oid: "1.2.840.10045.4.3.2"
+    lifecycle_stage: "TLS certificates; internal service mesh"
+    touchpoint: "TLS server/client authentication"
+    quantum_vulnerable: true
+    threat: "Signature forgery / impersonation once a CRQC exists"
+    target: "ML-DSA-65 (FIPS 204)"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+
+  - ref: ecdh-p256
+    name: "ECDH-P256"
+    primitive: key-agree
+    algorithmFamily: ECDH
+    curve: P-256
+    cryptoFunctions: [keyderive]
+    classicalSecurityLevel: 128
+    nistQuantumSecurityLevel: 0
+    oid: "1.2.840.10045.2.1"
+    lifecycle_stage: "TLS 1.2 corporate channel; TLS 1.3 mesh"
+    touchpoint: "TLS key establishment"
+    quantum_vulnerable: true
+    threat: "HNDL: recorded TLS sessions decrypted post-Q-day"
+    target: "ML-KEM-768 (FIPS 203), hybrid X25519+ML-KEM"
+    hybrid_capable: true
+    migration_priority: P1-CRITICAL
+
+  - ref: sha-256
+    name: "SHA-256"
+    primitive: hash
+    algorithmFamily: SHA-2
+    parameterSetIdentifier: "256"
+    cryptoFunctions: [digest]
+    classicalSecurityLevel: 128
+    nistQuantumSecurityLevel: 2
+    oid: "2.16.840.1.101.3.4.2.1"
+    lifecycle_stage: "Ubiquitous (signatures, HMAC, integrity)"
+    touchpoint: "Digest for signatures & MACs"
+    quantum_vulnerable: false
+    threat: "Grover only — collision resistance mildly reduced"
+    target: "Retain; prefer SHA-384 for new high-assurance use"
+    hybrid_capable: false
+    migration_priority: P4-MONITOR
+
+  - ref: aes-256-gcm
+    name: "AES-256-GCM"
+    primitive: ae
+    algorithmFamily: AES
+    parameterSetIdentifier: "256"
+    mode: gcm
+    cryptoFunctions: [keygen, encrypt, decrypt, tag]
+    classicalSecurityLevel: 256
+    nistQuantumSecurityLevel: 5
+    oid: "2.16.840.1.101.3.4.1.46"
+    lifecycle_stage: "Data-at-rest (TDE); archive; HSM master key"
+    touchpoint: "Bulk data & key-wrapping encryption"
+    quantum_vulnerable: false
+    threat: "Grover halves effective strength -> still 128-bit; safe"
+    target: "Retain at 256-bit"
+    hybrid_capable: false
+    migration_priority: P4-MONITOR
+
+  - ref: hmac-sha256
+    name: "HMAC-SHA-256"
+    primitive: mac
+    algorithmFamily: HMAC
+    parameterSetIdentifier: "256"
+    cryptoFunctions: [tag, verify]
+    classicalSecurityLevel: 128
+    nistQuantumSecurityLevel: 2
+    oid: "1.2.840.113549.2.9"
+    lifecycle_stage: "SWIFT Local Authentication (LAU)"
+    touchpoint: "Integrity between back-office app and SWIFT interface"
+    quantum_vulnerable: false
+    threat: "Grover only — remains secure"
+    target: "Retain"
+    hybrid_capable: false
+    migration_priority: P4-MONITOR
+
+  - ref: ml-dsa-65
+    name: "ML-DSA-65"
+    primitive: signature
+    algorithmFamily: ML-DSA
+    parameterSetIdentifier: "ML-DSA-65"
+    cryptoFunctions: [sign, verify]
+    classicalSecurityLevel: 192
+    nistQuantumSecurityLevel: 3
+    oid: "2.16.840.1.101.3.4.3.18"
+    lifecycle_stage: "TARGET (state): replaces RSA/ECDSA signing"
+    touchpoint: "PQC digital signature (FIPS 204)"
+    quantum_vulnerable: false
+    threat: "None known (lattice, Module-LWE/SIS)"
+    target: "Deploy (hybrid with existing signer during transition)"
+    hybrid_capable: true
+    migration_priority: TARGET
+
+  - ref: ml-kem-768
+    name: "ML-KEM-768"
+    primitive: kem
+    algorithmFamily: ML-KEM
+    parameterSetIdentifier: "ML-KEM-768"
+    cryptoFunctions: [keygen, encapsulate, decapsulate]
+    classicalSecurityLevel: 192
+    nistQuantumSecurityLevel: 3
+    oid: "2.16.840.1.101.3.4.4.2"
+    lifecycle_stage: "TARGET (state): replaces ECDH/RSA key transport"
+    touchpoint: "PQC key establishment (FIPS 203)"
+    quantum_vulnerable: false
+    threat: "None known (lattice, Module-LWE)"
+    target: "Deploy hybrid X25519+ML-KEM-768"
+    hybrid_capable: true
+    migration_priority: TARGET
+
+# ---------------------------------------------------------------------
+# PROTOCOLS
+# ---------------------------------------------------------------------
+protocols:
+  - ref: tls-1-2-corporate
+    name: "TLSv1.2 (Corporate Channel)"
+    type: tls
+    version: "1.2"
+    lifecycle_stage: "Payment initiation (pain.001 ingress)"
+    touchpoint: "Corporate-to-bank host-to-host / API channel"
+    cipher_suites:
+      - name: "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        algorithms: [ecdh-p256, rsa-2048-pkcs1-sha256, aes-256-gcm, sha-256]
+    quantum_vulnerable: true
+    threat: "HNDL via ECDHE; legacy version also lacks modern hygiene"
+    target: "TLS 1.3 + hybrid X25519+ML-KEM-768"
+    hybrid_capable: true
+    migration_priority: P3-MEDIUM
+
+  - ref: tls-1-3-mesh
+    name: "TLSv1.3 (Internal Service Mesh)"
+    type: tls
+    version: "1.3"
+    lifecycle_stage: "Orchestration; screening; internal APIs"
+    touchpoint: "mTLS between payment microservices"
+    cipher_suites:
+      - name: "TLS_AES_256_GCM_SHA384"
+        algorithms: [ecdh-p256, aes-256-gcm, sha-256]
+    quantum_vulnerable: true
+    threat: "HNDL via ECDHE key establishment"
+    target: "Hybrid X25519+ML-KEM-768 key exchange"
+    hybrid_capable: true
+    migration_priority: P1-CRITICAL
+
+# ---------------------------------------------------------------------
+# CERTIFICATES
+# ---------------------------------------------------------------------
+certificates:
+  - ref: swift-pki-ee-cert
+    name: "SWIFT PKI End-Entity Certificate"
+    subjectName: "CN=paymentbank-swift-signing"
+    issuerName: "CN=SWIFT PKI Certification Authority"
+    signatureAlgorithmRef: rsa-2048-pkcs1-sha256
+    subjectPublicKeyRef: rsa-2048-signing-key
+    certificateFormat: "X.509"
+    notValidBefore: "2024-01-01T00:00:00Z"
+    notValidAfter: "2027-01-01T00:00:00Z"
+    lifecycle_stage: "SWIFT messaging gateway"
+    touchpoint: "Signs SWIFTNet InterAct / FIN messages"
+    quantum_vulnerable: true
+    threat: "RSA-2048 subject key & signature both quantum-vulnerable"
+    target: "Re-issue on ML-DSA-65; hybrid cert during transition"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+
+  - ref: corporate-tls-client-cert
+    name: "Corporate Client TLS Certificate"
+    subjectName: "CN=corporate-treasury-client"
+    issuerName: "CN=Bank Internal Issuing CA"
+    signatureAlgorithmRef: ecdsa-p256
+    subjectPublicKeyRef: ecdsa-p256-client-key
+    certificateFormat: "X.509"
+    notValidBefore: "2025-01-01T00:00:00Z"
+    notValidAfter: "2026-01-01T00:00:00Z"
+    lifecycle_stage: "Payment initiation (mutual TLS)"
+    touchpoint: "Authenticates corporate host-to-host channel"
+    quantum_vulnerable: true
+    threat: "ECDSA signature & EC public key quantum-vulnerable"
+    target: "ML-DSA-65 re-issue"
+    hybrid_capable: true
+    migration_priority: P3-MEDIUM
+
+# ---------------------------------------------------------------------
+# KEYS / RELATED CRYPTO MATERIAL
+# ---------------------------------------------------------------------
+keys:
+  - ref: rsa-2048-signing-key
+    name: "SWIFT Message-Signing Private Key"
+    type: private-key
+    state: active
+    algorithmRef: rsa-2048-pkcs1-sha256
+    size: 2048
+    securedBy_mechanism: "HSM (FIPS 140-2 Level 3)"
+    securedBy_algorithmRef: aes-256-gcm
+    creationDate: "2024-01-01T00:00:00Z"
+    oid: "1.2.840.113549.1.1.1"
+    lifecycle_stage: "HSM (key storage)"
+    touchpoint: "Signs outbound SWIFT payment messages"
+    quantum_vulnerable: true
+    threat: "Forgery of payment authorisation post-Q-day"
+    target: "ML-DSA-65 key pair"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+
+  - ref: rtgs-liquidity-signing-key
+    name: "RTGS Liquidity-Transfer Signing Key"
+    type: private-key
+    state: active
+    algorithmRef: rsa-2048-pkcs1-sha256
+    size: 2048
+    securedBy_mechanism: "HSM (FIPS 140-2 Level 3)"
+    securedBy_algorithmRef: aes-256-gcm
+    creationDate: "2024-01-01T00:00:00Z"
+    oid: "1.2.840.113549.1.1.1"
+    lifecycle_stage: "RTGS settlement (pacs.009)"
+    touchpoint: "Signs liquidity transfers (the Project Leap touchpoint)"
+    quantum_vulnerable: true
+    threat: "Forgery of settlement instructions post-Q-day"
+    target: "ML-DSA-65 key pair"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+
+  - ref: ecdsa-p256-client-key
+    name: "Corporate Client Authentication Key"
+    type: private-key
+    state: active
+    algorithmRef: ecdsa-p256
+    size: 256
+    securedBy_mechanism: "Software keystore"
+    securedBy_algorithmRef: aes-256-gcm
+    creationDate: "2025-01-01T00:00:00Z"
+    oid: "1.2.840.10045.2.1"
+    lifecycle_stage: "Payment initiation"
+    touchpoint: "Corporate mTLS client authentication"
+    quantum_vulnerable: true
+    threat: "Impersonation of corporate client post-Q-day"
+    target: "ML-DSA-65 key pair"
+    hybrid_capable: true
+    migration_priority: P3-MEDIUM
+
+  - ref: hsm-master-key
+    name: "HSM Master Wrapping Key"
+    type: secret-key
+    state: active
+    algorithmRef: aes-256-gcm
+    size: 256
+    securedBy_mechanism: "HSM hardware root of trust"
+    creationDate: "2023-01-01T00:00:00Z"
+    oid: "2.16.840.1.101.3.4.1.46"
+    lifecycle_stage: "HSM (key storage)"
+    touchpoint: "Wraps all payment signing keys at rest"
+    quantum_vulnerable: false
+    threat: "Grover only — AES-256 remains safe"
+    target: "Retain at 256-bit"
+    hybrid_capable: false
+    migration_priority: P4-MONITOR
+
+  - ref: archive-dek
+    name: "Archive Data-Encryption Key"
+    type: secret-key
+    state: active
+    algorithmRef: aes-256-gcm
+    size: 256
+    securedBy_mechanism: "Wrapped by RSA-2048-OAEP (key transport)"
+    securedBy_algorithmRef: rsa-2048-oaep
+    creationDate: "2024-06-01T00:00:00Z"
+    oid: "2.16.840.1.101.3.4.1.46"
+    lifecycle_stage: "Archive (7-10 yr retention)"
+    touchpoint: "Encrypts archived payment records & PII"
+    quantum_vulnerable: true
+    threat: "AES safe, BUT the RSA-2048 key-wrap = HNDL exposure"
+    target: "Re-wrap DEKs under ML-KEM-768; this is the HNDL crux"
+    hybrid_capable: true
+    migration_priority: P1-CRITICAL
+
+# ---------------------------------------------------------------------
+# LIFECYCLE DEPENDENCY EDGES (payment flow -> crypto assets it relies on)
+# ---------------------------------------------------------------------
+lifecycle:
+  - stage: "1. Payment Initiation (pain.001)"
+    depends_on: [tls-1-2-corporate, corporate-tls-client-cert, ecdsa-p256-client-key]
+  - stage: "2. Orchestration & pacs.008 assembly"
+    depends_on: [tls-1-3-mesh, aes-256-gcm]
+  - stage: "3. Sanctions / AML screening"
+    depends_on: [tls-1-3-mesh]
+  - stage: "4. SWIFT messaging (MT103 / pacs.008)"
+    depends_on: [swift-pki-ee-cert, rsa-2048-signing-key, hmac-sha256]
+  - stage: "5. HSM signing"
+    depends_on: [rsa-2048-signing-key, hsm-master-key]
+  - stage: "6. RTGS settlement (pacs.009)"
+    depends_on: [rtgs-liquidity-signing-key]
+  - stage: "7. Archive (7-10 yr retention)"
+    depends_on: [archive-dek, rsa-2048-oaep]

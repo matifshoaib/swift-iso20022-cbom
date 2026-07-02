@@ -1,0 +1,1064 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:f14af95a-54ba-4db5-ba1c-bef3533d97ce",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-07-02T19:33:34Z",
+    "component": {
+      "type": "application",
+      "bom-ref": "estate/wire-payment",
+      "name": "Correspondent Banking Wire-Payment Estate (Reference Model)",
+      "description": "Cryptographic dependency map across the cross-border wire-payment lifecycle: corporate initiation (pain.001) -> orchestration -> sanctions screening -> SWIFT messaging (MT103 / pacs.008) -> HSM signing -> RTGS settlement (pacs.009) -> long-term archive.\n"
+    },
+    "authors": [
+      {
+        "name": "Muhammad Atif \u2014 Payments PQC Migration Analysis"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/rsa-2048-pkcs1-sha256",
+      "name": "RSA-2048-PKCS1v15-SHA256",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "2048",
+          "padding": "pkcs1v15",
+          "classicalSecurityLevel": 112,
+          "nistQuantumSecurityLevel": 0,
+          "cryptoFunctions": [
+            "sign",
+            "verify"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "1.2.840.113549.1.1.11"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "RSASSA-PKCS1-v1_5"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "SWIFT messaging; RTGS settlement; PKI"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Message & liquidity-transfer signing"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Signature forgery once a CRQC exists (integrity/authenticity)"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 (FIPS 204)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/rsa-2048-oaep",
+      "name": "RSA-2048-OAEP",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "parameterSetIdentifier": "2048",
+          "padding": "oaep",
+          "classicalSecurityLevel": 112,
+          "nistQuantumSecurityLevel": 0,
+          "cryptoFunctions": [
+            "encrypt",
+            "decrypt"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "1.2.840.113549.1.1.7"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "RSA-OAEP"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Archive; key wrapping"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Wraps AES data-encryption keys for long-term archive"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Harvest-Now-Decrypt-Later on archived payment data & PII"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-KEM-768 (FIPS 203)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P1-CRITICAL"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ecdsa-p256",
+      "name": "ECDSA-P256-SHA256",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "curve": "P-256",
+          "classicalSecurityLevel": 128,
+          "nistQuantumSecurityLevel": 0,
+          "cryptoFunctions": [
+            "sign",
+            "verify"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "1.2.840.10045.4.3.2"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "ECDSA"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "TLS certificates; internal service mesh"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "TLS server/client authentication"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Signature forgery / impersonation once a CRQC exists"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 (FIPS 204)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ecdh-p256",
+      "name": "ECDH-P256",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "key-agree",
+          "curve": "P-256",
+          "classicalSecurityLevel": 128,
+          "nistQuantumSecurityLevel": 0,
+          "cryptoFunctions": [
+            "keyderive"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "1.2.840.10045.2.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "ECDH"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "TLS 1.2 corporate channel; TLS 1.3 mesh"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "TLS key establishment"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL: recorded TLS sessions decrypted post-Q-day"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-KEM-768 (FIPS 203), hybrid X25519+ML-KEM"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P1-CRITICAL"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/sha-256",
+      "name": "SHA-256",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "256",
+          "classicalSecurityLevel": 128,
+          "nistQuantumSecurityLevel": 2,
+          "cryptoFunctions": [
+            "digest"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.2.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "SHA-2"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Ubiquitous (signatures, HMAC, integrity)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Digest for signatures & MACs"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Grover only \u2014 collision resistance mildly reduced"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Retain; prefer SHA-384 for new high-assurance use"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P4-MONITOR"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/aes-256-gcm",
+      "name": "AES-256-GCM",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "ae",
+          "parameterSetIdentifier": "256",
+          "mode": "gcm",
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 5,
+          "cryptoFunctions": [
+            "keygen",
+            "encrypt",
+            "decrypt",
+            "tag"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.1.46"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "AES"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Data-at-rest (TDE); archive; HSM master key"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Bulk data & key-wrapping encryption"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Grover halves effective strength -> still 128-bit; safe"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Retain at 256-bit"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P4-MONITOR"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/hmac-sha256",
+      "name": "HMAC-SHA-256",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "mac",
+          "parameterSetIdentifier": "256",
+          "classicalSecurityLevel": 128,
+          "nistQuantumSecurityLevel": 2,
+          "cryptoFunctions": [
+            "tag",
+            "verify"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "1.2.840.113549.2.9"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "HMAC"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "SWIFT Local Authentication (LAU)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Integrity between back-office app and SWIFT interface"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Grover only \u2014 remains secure"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Retain"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P4-MONITOR"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ml-dsa-65",
+      "name": "ML-DSA-65",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "ML-DSA-65",
+          "classicalSecurityLevel": 192,
+          "nistQuantumSecurityLevel": 3,
+          "cryptoFunctions": [
+            "sign",
+            "verify"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.3.18"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "ML-DSA"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "TARGET (state): replaces RSA/ECDSA signing"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "PQC digital signature (FIPS 204)"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "None known (lattice, Module-LWE/SIS)"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Deploy (hybrid with existing signer during transition)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "TARGET"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ml-kem-768",
+      "name": "ML-KEM-768",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "kem",
+          "parameterSetIdentifier": "ML-KEM-768",
+          "classicalSecurityLevel": 192,
+          "nistQuantumSecurityLevel": 3,
+          "cryptoFunctions": [
+            "keygen",
+            "encapsulate",
+            "decapsulate"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.4.2"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "ML-KEM"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "TARGET (state): replaces ECDH/RSA key transport"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "PQC key establishment (FIPS 203)"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "None known (lattice, Module-LWE)"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Deploy hybrid X25519+ML-KEM-768"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "TARGET"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/protocol/tls-1-2-corporate",
+      "name": "TLSv1.2 (Corporate Channel)",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "1.2",
+          "cipherSuites": [
+            {
+              "name": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+              "algorithms": [
+                "crypto/algorithm/ecdh-p256",
+                "crypto/algorithm/rsa-2048-pkcs1-sha256",
+                "crypto/algorithm/aes-256-gcm",
+                "crypto/algorithm/sha-256"
+              ]
+            }
+          ]
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Payment initiation (pain.001 ingress)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Corporate-to-bank host-to-host / API channel"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL via ECDHE; legacy version also lacks modern hygiene"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "TLS 1.3 + hybrid X25519+ML-KEM-768"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P3-MEDIUM"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/protocol/tls-1-3-mesh",
+      "name": "TLSv1.3 (Internal Service Mesh)",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "1.3",
+          "cipherSuites": [
+            {
+              "name": "TLS_AES_256_GCM_SHA384",
+              "algorithms": [
+                "crypto/algorithm/ecdh-p256",
+                "crypto/algorithm/aes-256-gcm",
+                "crypto/algorithm/sha-256"
+              ]
+            }
+          ]
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Orchestration; screening; internal APIs"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "mTLS between payment microservices"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL via ECDHE key establishment"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Hybrid X25519+ML-KEM-768 key exchange"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P1-CRITICAL"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/certificate/swift-pki-ee-cert",
+      "name": "SWIFT PKI End-Entity Certificate",
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "CN=paymentbank-swift-signing",
+          "issuerName": "CN=SWIFT PKI Certification Authority",
+          "notValidBefore": "2024-01-01T00:00:00Z",
+          "notValidAfter": "2027-01-01T00:00:00Z",
+          "certificateFormat": "X.509",
+          "signatureAlgorithmRef": "crypto/algorithm/rsa-2048-pkcs1-sha256",
+          "subjectPublicKeyRef": "crypto/key/rsa-2048-signing-key"
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "SWIFT messaging gateway"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Signs SWIFTNet InterAct / FIN messages"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "RSA-2048 subject key & signature both quantum-vulnerable"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Re-issue on ML-DSA-65; hybrid cert during transition"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/certificate/corporate-tls-client-cert",
+      "name": "Corporate Client TLS Certificate",
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "CN=corporate-treasury-client",
+          "issuerName": "CN=Bank Internal Issuing CA",
+          "notValidBefore": "2025-01-01T00:00:00Z",
+          "notValidAfter": "2026-01-01T00:00:00Z",
+          "certificateFormat": "X.509",
+          "signatureAlgorithmRef": "crypto/algorithm/ecdsa-p256",
+          "subjectPublicKeyRef": "crypto/key/ecdsa-p256-client-key"
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Payment initiation (mutual TLS)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Authenticates corporate host-to-host channel"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "ECDSA signature & EC public key quantum-vulnerable"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 re-issue"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P3-MEDIUM"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/rsa-2048-signing-key",
+      "name": "SWIFT Message-Signing Private Key",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "id": "48b615c4-6819-4742-9109-995244275846",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/rsa-2048-pkcs1-sha256",
+          "creationDate": "2024-01-01T00:00:00Z",
+          "size": 2048,
+          "securedBy": {
+            "mechanism": "HSM (FIPS 140-2 Level 3)",
+            "algorithmRef": "crypto/algorithm/aes-256-gcm"
+          }
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "HSM (key storage)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Signs outbound SWIFT payment messages"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Forgery of payment authorisation post-Q-day"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 key pair"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/rtgs-liquidity-signing-key",
+      "name": "RTGS Liquidity-Transfer Signing Key",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "id": "31f16b12-ca50-4d28-a6eb-44a243cd086e",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/rsa-2048-pkcs1-sha256",
+          "creationDate": "2024-01-01T00:00:00Z",
+          "size": 2048,
+          "securedBy": {
+            "mechanism": "HSM (FIPS 140-2 Level 3)",
+            "algorithmRef": "crypto/algorithm/aes-256-gcm"
+          }
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "RTGS settlement (pacs.009)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Signs liquidity transfers (the Project Leap touchpoint)"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Forgery of settlement instructions post-Q-day"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 key pair"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/ecdsa-p256-client-key",
+      "name": "Corporate Client Authentication Key",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "id": "de7210c7-e5b4-4d56-a7d8-5c9933c6c32c",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/ecdsa-p256",
+          "creationDate": "2025-01-01T00:00:00Z",
+          "size": 256,
+          "securedBy": {
+            "mechanism": "Software keystore",
+            "algorithmRef": "crypto/algorithm/aes-256-gcm"
+          }
+        },
+        "oid": "1.2.840.10045.2.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Payment initiation"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Corporate mTLS client authentication"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Impersonation of corporate client post-Q-day"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 key pair"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P3-MEDIUM"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/hsm-master-key",
+      "name": "HSM Master Wrapping Key",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "secret-key",
+          "id": "151486b8-c9a6-4e66-b351-1290026fd03d",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/aes-256-gcm",
+          "creationDate": "2023-01-01T00:00:00Z",
+          "size": 256,
+          "securedBy": {
+            "mechanism": "HSM hardware root of trust"
+          }
+        },
+        "oid": "2.16.840.1.101.3.4.1.46"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "HSM (key storage)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Wraps all payment signing keys at rest"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Grover only \u2014 AES-256 remains safe"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Retain at 256-bit"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P4-MONITOR"
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/archive-dek",
+      "name": "Archive Data-Encryption Key",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "secret-key",
+          "id": "0f111d4a-3c72-422d-b306-e757ee0ec19d",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/aes-256-gcm",
+          "creationDate": "2024-06-01T00:00:00Z",
+          "size": 256,
+          "securedBy": {
+            "mechanism": "Wrapped by RSA-2048-OAEP (key transport)",
+            "algorithmRef": "crypto/algorithm/rsa-2048-oaep"
+          }
+        },
+        "oid": "2.16.840.1.101.3.4.1.46"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Archive (7-10 yr retention)"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Encrypts archived payment records & PII"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "AES safe, BUT the RSA-2048 key-wrap = HNDL exposure"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Re-wrap DEKs under ML-KEM-768; this is the HNDL crux"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P1-CRITICAL"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "lifecycle/1. Payment Initiation (pain.001)",
+      "dependsOn": [
+        "crypto/protocol/tls-1-2-corporate",
+        "crypto/certificate/corporate-tls-client-cert",
+        "crypto/key/ecdsa-p256-client-key"
+      ]
+    },
+    {
+      "ref": "lifecycle/2. Orchestration & pacs.008 assembly",
+      "dependsOn": [
+        "crypto/protocol/tls-1-3-mesh",
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "lifecycle/3. Sanctions / AML screening",
+      "dependsOn": [
+        "crypto/protocol/tls-1-3-mesh"
+      ]
+    },
+    {
+      "ref": "lifecycle/4. SWIFT messaging (MT103 / pacs.008)",
+      "dependsOn": [
+        "crypto/certificate/swift-pki-ee-cert",
+        "crypto/key/rsa-2048-signing-key",
+        "crypto/algorithm/hmac-sha256"
+      ]
+    },
+    {
+      "ref": "lifecycle/5. HSM signing",
+      "dependsOn": [
+        "crypto/key/rsa-2048-signing-key",
+        "crypto/key/hsm-master-key"
+      ]
+    },
+    {
+      "ref": "lifecycle/6. RTGS settlement (pacs.009)",
+      "dependsOn": [
+        "crypto/key/rtgs-liquidity-signing-key"
+      ]
+    },
+    {
+      "ref": "lifecycle/7. Archive (7-10 yr retention)",
+      "dependsOn": [
+        "crypto/key/archive-dek",
+        "crypto/algorithm/rsa-2048-oaep"
+      ]
+    },
+    {
+      "ref": "crypto/certificate/swift-pki-ee-cert",
+      "dependsOn": [
+        "crypto/algorithm/rsa-2048-pkcs1-sha256",
+        "crypto/key/rsa-2048-signing-key"
+      ]
+    },
+    {
+      "ref": "crypto/certificate/corporate-tls-client-cert",
+      "dependsOn": [
+        "crypto/algorithm/ecdsa-p256",
+        "crypto/key/ecdsa-p256-client-key"
+      ]
+    },
+    {
+      "ref": "crypto/key/rsa-2048-signing-key",
+      "dependsOn": [
+        "crypto/algorithm/rsa-2048-pkcs1-sha256",
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "crypto/key/rtgs-liquidity-signing-key",
+      "dependsOn": [
+        "crypto/algorithm/rsa-2048-pkcs1-sha256",
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "crypto/key/ecdsa-p256-client-key",
+      "dependsOn": [
+        "crypto/algorithm/ecdsa-p256",
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "crypto/key/hsm-master-key",
+      "dependsOn": [
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "crypto/key/archive-dek",
+      "dependsOn": [
+        "crypto/algorithm/aes-256-gcm",
+        "crypto/algorithm/rsa-2048-oaep"
+      ]
+    }
+  ]
+}

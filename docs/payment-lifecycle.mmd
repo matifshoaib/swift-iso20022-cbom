@@ -1,0 +1,49 @@
+%% Wire-Payment Lifecycle — Cryptographic Dependency Map
+%% Renders on GitHub. Colour = PQC migration priority.
+graph LR
+    classDef p1 fill:#7f1d1d,stroke:#450a0a,color:#fff;
+    classDef p2 fill:#b45309,stroke:#7c2d12,color:#fff;
+    classDef p3 fill:#a16207,stroke:#713f12,color:#fff;
+    classDef p4 fill:#166534,stroke:#14532d,color:#fff;
+    classDef stage fill:#1e293b,stroke:#0f172a,color:#fff;
+
+    S1["1 · Initiation<br/>pain.001"]:::stage
+    S2["2 · Orchestration<br/>pacs.008 assembly"]:::stage
+    S3["3 · Screening<br/>Sanctions / AML"]:::stage
+    S4["4 · SWIFT Messaging<br/>MT103 / pacs.008"]:::stage
+    S5["5 · HSM Signing"]:::stage
+    S6["6 · RTGS Settlement<br/>pacs.009"]:::stage
+    S7["7 · Archive<br/>7–10 yr retention"]:::stage
+
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6 --> S7
+
+    %% Stage 1
+    S1 --> A1["TLS 1.2 · ECDHE-RSA<br/>HNDL"]:::p3
+    S1 --> A2["Corporate client cert<br/>ECDSA-P256"]:::p3
+
+    %% Stage 2 / 3
+    S2 --> B1["mTLS 1.3 · ECDHE<br/>HNDL"]:::p1
+    S2 --> B2["AES-256-GCM<br/>data-at-rest"]:::p4
+    S3 --> B1
+
+    %% Stage 4
+    S4 --> C1["SWIFT PKI cert<br/>RSA-2048"]:::p2
+    S4 --> C2["Message signing key<br/>RSA-2048"]:::p2
+    S4 --> C3["SWIFT LAU<br/>HMAC-SHA-256"]:::p4
+
+    %% Stage 5
+    S5 --> C2
+    S5 --> D1["HSM master key<br/>AES-256"]:::p4
+
+    %% Stage 6 — the Project Leap touchpoint
+    S6 --> E1["Liquidity-transfer signing<br/>RSA-2048 → ML-DSA-65"]:::p2
+
+    %% Stage 7 — the HNDL crux
+    S7 --> F1["Archive DEK wrap<br/>RSA-2048-OAEP"]:::p1
+    S7 --> F2["Archived data<br/>AES-256-GCM"]:::p4
+
+    %% Legend
+    L1["P1 · CRITICAL — HNDL"]:::p1
+    L2["P2 · HIGH — signing @ Q-day"]:::p2
+    L3["P3 · MEDIUM — protocol hygiene"]:::p3
+    L4["P4 · MONITOR — symmetric/hash"]:::p4

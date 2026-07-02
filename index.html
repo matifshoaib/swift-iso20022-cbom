@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SWIFT / ISO 20022 Payments Crypto-Dependency Map + CBOM</title>
+<meta name="description" content="A CycloneDX 1.6 Cryptography Bill of Materials mapping where quantum-vulnerable cryptography lives across the wire-payment lifecycle — and what to migrate first.">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="SWIFT / ISO 20022 Payments Crypto-Dependency Map + CBOM">
+<meta property="og:description" content="A CycloneDX 1.6 Cryptography Bill of Materials for the wire-payment lifecycle. 18 assets, 12 quantum-vulnerable, validated against the official schema.">
+<meta property="og:url" content="https://matifshoaib.github.io/swift-iso20022-cbom/">
+<meta property="og:image" content="https://matifshoaib.github.io/swift-iso20022-cbom/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SWIFT / ISO 20022 Payments Crypto-Dependency Map + CBOM">
+<meta name="twitter:description" content="Where quantum-vulnerable cryptography lives across the wire-payment lifecycle — and what to migrate first.">
+<meta name="twitter:image" content="https://matifshoaib.github.io/swift-iso20022-cbom/og-image.png">
+
+<style>
+  :root{
+    --ink:#12211E; --paper:#FFFFFF; --card:#F4F7F6; --teal:#0F766E; --tealb:#14B8A6;
+    --graph:#3C4A46; --mute:#7A857F; --rule:#DCE1DE;
+    --p1:#E02424; --p2:#FF7A1A; --p3:#F5B301; --p4:#1DA35A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,Helvetica,sans-serif;color:var(--graph);background:var(--paper);line-height:1.55}
+  code,.mono{font-family:"Courier New",monospace}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+
+  header{background:var(--ink);color:#fff;padding:64px 0 56px}
+  .eyebrow{font-family:"Courier New",monospace;font-size:12px;font-weight:bold;letter-spacing:2px;color:var(--tealb);margin-bottom:18px}
+  h1{font-size:40px;line-height:1.15;color:#fff;margin-bottom:16px;font-weight:800}
+  header p{font-size:17px;color:#9FB2AC;max-width:680px}
+  .ramp{display:flex;gap:6px;margin-top:26px;align-items:center}
+  .ramp span{width:18px;height:18px;display:inline-block}
+  .ramp small{font-family:"Courier New",monospace;color:#5C716B;margin-left:10px;font-size:12px}
+  .btns{margin-top:30px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-block;padding:11px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:bold}
+  .btn-primary{background:var(--tealb);color:var(--ink)}
+  .btn-ghost{border:1px solid #3A4C46;color:#CFE0DB}
+
+  section{padding:52px 0;border-bottom:1px solid var(--rule)}
+  h2{font-size:13px;font-family:"Courier New",monospace;letter-spacing:1.5px;color:var(--teal);text-transform:uppercase;margin-bottom:8px}
+  h3{font-size:26px;color:var(--ink);margin-bottom:22px;font-weight:800}
+
+  .stats{display:flex;gap:18px;flex-wrap:wrap}
+  .stat{flex:1;min-width:180px;background:var(--card);border-radius:10px;padding:24px}
+  .stat .n{font-size:48px;font-weight:800;color:var(--teal);line-height:1}
+  .stat .l{font-size:13px;color:var(--graph);margin-top:8px}
+
+  .flow{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .stage{background:var(--ink);color:#fff;border-radius:8px;padding:12px 14px;flex:1;min-width:110px}
+  .stage .sid{font-family:"Courier New",monospace;color:var(--tealb);font-size:12px;font-weight:bold}
+  .stage .sn{font-size:13px;font-weight:bold}
+  .stage .ss{font-family:"Courier New",monospace;font-size:10px;color:#9FB2AC}
+
+  .buckets{display:flex;gap:18px;flex-wrap:wrap}
+  .bucket{flex:1;min-width:280px;background:var(--card);border-radius:10px;padding:24px}
+  .bucket .tag{font-family:"Courier New",monospace;font-size:12px;font-weight:bold;letter-spacing:1px}
+  .bucket h4{font-size:19px;color:var(--ink);margin:6px 0 4px}
+  .bucket ul{margin:12px 0 0 18px}
+  .bucket li{margin-bottom:7px;font-size:14px}
+
+  .lead{font-size:15px;color:var(--mute);max-width:760px;margin-bottom:26px}
+  .files a{color:var(--teal);text-decoration:none;font-weight:bold}
+  .files td{padding:9px 14px 9px 0;font-size:14px;vertical-align:top}
+  .files td:first-child{white-space:nowrap}
+  .callout{background:var(--ink);color:#CFE0DB;border-radius:10px;padding:22px 24px;font-size:14px;margin-top:22px}
+  .callout b{color:#fff}
+  footer{padding:40px 0;color:var(--mute);font-size:12px;font-family:"Courier New",monospace}
+  .disc{font-size:12px;color:var(--mute);margin-top:16px;font-style:italic}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">CRYPTOGRAPHY BILL OF MATERIALS &middot; CYCLONEDX 1.6</div>
+    <h1>SWIFT / ISO&nbsp;20022 Payments<br>Crypto-Dependency Map + CBOM</h1>
+    <p>Where quantum-vulnerable cryptography lives across the wire-payment lifecycle — and what to migrate first. A machine-readable inventory built with payments-domain context, not a generic scan.</p>
+    <div class="ramp">
+      <span style="background:#E02424"></span><span style="background:#FF7A1A"></span>
+      <span style="background:#F5B301"></span><span style="background:#1DA35A"></span>
+      <small>P1 &middot; P2 &middot; P3 &middot; P4 migration-priority ramp</small>
+    </div>
+    <div class="btns">
+      <a class="btn btn-primary" href="https://github.com/matifshoaib/swift-iso20022-cbom">View on GitHub</a>
+      <a class="btn btn-ghost" href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/cbom/payment-estate-cbom.json">The CBOM (JSON)</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>One machine-readable inventory</h2>
+    <h3>Built with payments context</h3>
+    <div class="stats">
+      <div class="stat"><div class="n">18</div><div class="l">cryptographic assets across 7 lifecycle stages</div></div>
+      <div class="stat"><div class="n">12</div><div class="l">quantum-vulnerable (67% of the estate)</div></div>
+      <div class="stat"><div class="n">1.6</div><div class="l">validated against the official CycloneDX JSON Schema</div></div>
+    </div>
+    <p class="lead" style="margin-top:22px">Generic discovery tells you that you run RSA-2048. It can't tell you it's the signature on a <code>pacs.009</code> liquidity transfer BIS Project Leap just stress-tested, or that the real harvest-now-decrypt-later exposure is the RSA key-wrap on a 10-year payment archive.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The flagship view</h2>
+    <h3>The wire-payment crypto-dependency map</h3>
+    <div class="flow">
+      <div class="stage"><div class="sid">S1</div><div class="sn">Initiation</div><div class="ss">pain.001</div></div>
+      <div class="stage"><div class="sid">S2</div><div class="sn">Orchestration</div><div class="ss">pacs.008</div></div>
+      <div class="stage"><div class="sid">S3</div><div class="sn">Screening</div><div class="ss">AML</div></div>
+      <div class="stage"><div class="sid">S4</div><div class="sn">SWIFT msg</div><div class="ss">MT103 / pacs.008</div></div>
+      <div class="stage"><div class="sid">S5</div><div class="sn">HSM signing</div><div class="ss">FIPS 140-2 L3</div></div>
+      <div class="stage"><div class="sid">S6</div><div class="sn">RTGS</div><div class="ss">pacs.009</div></div>
+      <div class="stage"><div class="sid">S7</div><div class="sn">Archive</div><div class="ss">7–10 yr</div></div>
+    </div>
+    <p class="lead">Each stage is linked in the CBOM's dependency graph to the crypto assets beneath it — so you can trace, for any point in the flow, exactly which quantum-vulnerable assets it relies on.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The prioritisation backbone</h2>
+    <h3>&lsquo;Quantum-vulnerable&rsquo; is two problems, not one</h3>
+    <div class="buckets">
+      <div class="bucket">
+        <div class="tag" style="color:#E02424">CONFIDENTIALITY &middot; P1 CRITICAL</div>
+        <h4>Key transport &amp; agreement</h4>
+        <ul>
+          <li>Attack is <b>retroactive</b> — harvest-now-decrypt-later.</li>
+          <li>Anything encrypted today whose secrecy must outlive Q-day is already exposed.</li>
+          <li>Target: <b>ML-KEM-768</b> (hybrid X25519+ML-KEM).</li>
+        </ul>
+      </div>
+      <div class="bucket">
+        <div class="tag" style="color:#D35400">AUTHENTICITY &middot; P2 HIGH</div>
+        <h4>Signatures &amp; certificates</h4>
+        <ul>
+          <li>Not retroactive — you can't forge a wire that already settled.</li>
+          <li>Risk crystallises <b>at Q-day</b>, driven by deprecation deadlines.</li>
+          <li>Target: <b>ML-DSA-65</b> (FIPS 204).</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout">
+      <b>BIS Project Leap Phase 2</b> (SWIFT + three central banks, 11 Dec 2025) proved migration is feasible on the live euro T2/TARGET2 system — but a Dilithium signature of <b>3,293 bytes</b> replacing a <b>256-byte</b> RSA-2048 one (~12.9&times;) overflowed message buffers. The deliverable is <b>crypto-agility</b>, not a one-time cipher swap.
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Explore the repo</h2>
+    <h3>What's inside</h3>
+    <table class="files">
+      <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/cbom/payment-estate-cbom.json">cbom/payment-estate-cbom.json</a></td><td>The CycloneDX 1.6 CBOM — 18 assets, 12 quantum-vulnerable.</td></tr>
+      <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/data/crypto-inventory.yaml">data/crypto-inventory.yaml</a></td><td>Human-editable source of truth.</td></tr>
+      <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/scripts/generate_cbom.py">scripts/generate_cbom.py</a></td><td>YAML → CBOM generator (single-source-of-truth design).</td></tr>
+      <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/docs/migration-priorities.md">docs/migration-priorities.md</a></td><td>What breaks / can be hybridised + Project Leap analysis.</td></tr>
+    </table>
+    <p class="disc">Reference model, not a real institution. Every key, certificate, and endpoint is illustrative. Third-party figures should be verified against the cited primary sources.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    CycloneDX 1.6 CBOM &middot; NIST FIPS 203/204/205 &middot; NIST IR 8547 &middot; Cyber Centre ITSM.40.001 &middot; BIS Project Leap phase 2 &middot; github.com/matifshoaib
+  </div>
+</footer>
+
+</body>
+</html>
