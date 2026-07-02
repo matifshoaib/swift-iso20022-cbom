@@ -27,6 +27,9 @@ import argparse
 import datetime as dt
 import json
 import sys
+import copy
+import hashlib
+import os
 import uuid
 from pathlib import Path
 
@@ -148,7 +151,7 @@ def _certificate_component(c: dict) -> dict:
 def _key_component(k: dict) -> dict:
     rp = {
         "type": k["type"],
-        "id": str(uuid.uuid4()),
+        "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"cbom/key/{k['ref']}")),
         "state": k.get("state", "active"),
     }
     if k.get("algorithmRef"):
@@ -233,11 +236,27 @@ def build_cbom(inv: dict) -> dict:
     components += [_certificate_component(c) for c in inv.get("certificates", [])]
     components += [_key_component(k) for k in inv.get("keys", [])]
 
-    now = dt.datetime.now(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # Deterministic serial number: UUIDv5 derived from a content hash of the
+    # inventory, so regenerating the same inventory yields the same CBOM
+    # (reproducible build — this is what lets CI verify the JSON isn't stale).
+    digest = hashlib.sha256(
+        json.dumps(inv, sort_keys=True, default=str).encode()
+    ).hexdigest()
+    serial = uuid.uuid5(uuid.NAMESPACE_URL, digest)
+
+    # Timestamp: reproducible-builds convention. Honour SOURCE_DATE_EPOCH when
+    # set (e.g. in CI), otherwise use the current time for local runs.
+    epoch = os.environ.get("SOURCE_DATE_EPOCH")
+    if epoch:
+        ts = dt.datetime.fromtimestamp(int(epoch), dt.timezone.utc)
+    else:
+        ts = dt.datetime.now(dt.timezone.utc)
+    now = ts.strftime("%Y-%m-%dT%H:%M:%SZ")
+
     return {
         "bomFormat": "CycloneDX",
         "specVersion": SPEC_VERSION,
-        "serialNumber": f"urn:uuid:{uuid.uuid4()}",
+        "serialNumber": f"urn:uuid:{serial}",
         "version": 1,
         "metadata": {
             "timestamp": now,
@@ -254,15 +273,39 @@ def build_cbom(inv: dict) -> dict:
     }
 
 
+def _semantic(cbom: dict) -> dict:
+    """Copy with the volatile timestamp removed, for reproducibility checks."""
+    c = copy.deepcopy(cbom)
+    c.get("metadata", {}).pop("timestamp", None)
+    return c
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Generate a CycloneDX 1.6 CBOM.")
     ap.add_argument("--inventory", default="data/crypto-inventory.yaml")
     ap.add_argument("--out", default="cbom/payment-estate-cbom.json")
+    ap.add_argument("--check", action="store_true",
+                    help="Verify the committed CBOM matches the inventory "
+                         "(ignoring timestamp) and exit non-zero on drift. "
+                         "Does not write.")
     args = ap.parse_args()
 
     inv = yaml.safe_load(Path(args.inventory).read_text())
     cbom = build_cbom(inv)
     out = Path(args.out)
+
+    if args.check:
+        if not out.exists():
+            sys.exit(f"CHECK FAILED: {out} does not exist — run the generator.")
+        existing = json.loads(out.read_text())
+        if _semantic(existing) != _semantic(cbom):
+            sys.exit(
+                f"CHECK FAILED: {out} is out of sync with {args.inventory}.\n"
+                f"Run:  python scripts/generate_cbom.py  and commit the result."
+            )
+        print(f"CHECK PASSED: {out} is in sync with {args.inventory}")
+        return
+
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(cbom, indent=2) + "\n")
 

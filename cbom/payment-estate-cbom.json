@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:f14af95a-54ba-4db5-ba1c-bef3533d97ce",
+  "serialNumber": "urn:uuid:5ed0f3f6-ae03-54be-80bd-4037e962a886",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-07-02T19:33:34Z",
+    "timestamp": "2026-07-02T22:07:32Z",
     "component": {
       "type": "application",
       "bom-ref": "estate/wire-payment",
@@ -715,7 +715,7 @@
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "private-key",
-          "id": "48b615c4-6819-4742-9109-995244275846",
+          "id": "e0d530ca-5aec-524c-a80e-d76a62aefda2",
           "state": "active",
           "algorithmRef": "crypto/algorithm/rsa-2048-pkcs1-sha256",
           "creationDate": "2024-01-01T00:00:00Z",
@@ -766,7 +766,7 @@
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "private-key",
-          "id": "31f16b12-ca50-4d28-a6eb-44a243cd086e",
+          "id": "0f65c81c-6804-5051-9f8c-0b4d770e7cd6",
           "state": "active",
           "algorithmRef": "crypto/algorithm/rsa-2048-pkcs1-sha256",
           "creationDate": "2024-01-01T00:00:00Z",
@@ -817,7 +817,7 @@
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "private-key",
-          "id": "de7210c7-e5b4-4d56-a7d8-5c9933c6c32c",
+          "id": "55059172-2f72-5ffb-a5d0-920acf9df40b",
           "state": "active",
           "algorithmRef": "crypto/algorithm/ecdsa-p256",
           "creationDate": "2025-01-01T00:00:00Z",
@@ -868,7 +868,7 @@
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "secret-key",
-          "id": "151486b8-c9a6-4e66-b351-1290026fd03d",
+          "id": "b086b2d0-d24d-51af-ab7c-3134e71590ef",
           "state": "active",
           "algorithmRef": "crypto/algorithm/aes-256-gcm",
           "creationDate": "2023-01-01T00:00:00Z",
@@ -918,7 +918,7 @@
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "secret-key",
-          "id": "0f111d4a-3c72-422d-b306-e757ee0ec19d",
+          "id": "229a784e-e2aa-5710-84b0-583a99be7ffc",
           "state": "active",
           "algorithmRef": "crypto/algorithm/aes-256-gcm",
           "creationDate": "2024-06-01T00:00:00Z",

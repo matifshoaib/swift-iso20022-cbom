@@ -16,14 +16,7 @@ jobs:
           python-version: "3.12"
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: Regenerate CBOM from source inventory
-        run: python scripts/generate_cbom.py --inventory data/crypto-inventory.yaml --out cbom/payment-estate-cbom.json
-      - name: Fail if CBOM is out of sync with inventory
-        run: |
-          if ! git diff --quiet cbom/payment-estate-cbom.json; then
-            echo "::error::cbom/payment-estate-cbom.json is stale. Run generate_cbom.py and commit."
-            git --no-pager diff cbom/payment-estate-cbom.json
-            exit 1
-          fi
+      - name: Verify CBOM is in sync with the inventory
+        run: python scripts/generate_cbom.py --check
       - name: Structural validation + risk rollup
         run: python scripts/validate_cbom.py cbom/payment-estate-cbom.json
