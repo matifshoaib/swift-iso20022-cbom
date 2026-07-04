@@ -52,6 +52,8 @@ def _props(asset: dict) -> list[dict]:
         ("target", "target-algorithm"),
         ("hybrid_capable", "hybrid-capable"),
         ("migration_priority", "migration-priority"),
+        ("confidence", "confidence"),
+        ("confidence_note", "confidence-note"),
     ]
     out = []
     for src, name in keys:

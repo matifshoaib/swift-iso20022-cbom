@@ -1,15 +1,15 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:5ed0f3f6-ae03-54be-80bd-4037e962a886",
+  "serialNumber": "urn:uuid:4f313098-049b-505e-82c1-46fda61856c3",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-07-02T22:07:32Z",
+    "timestamp": "2026-07-04T00:43:45Z",
     "component": {
       "type": "application",
       "bom-ref": "estate/wire-payment",
-      "name": "Correspondent Banking Wire-Payment Estate (Reference Model)",
-      "description": "Cryptographic dependency map across the cross-border wire-payment lifecycle: corporate initiation (pain.001) -> orchestration -> sanctions screening -> SWIFT messaging (MT103 / pacs.008) -> HSM signing -> RTGS settlement (pacs.009) -> long-term archive.\n"
+      "name": "Wire-Payment Estate + Canadian Domestic Rails (Reference Model)",
+      "description": "Cryptographic dependency map across the cross-border wire-payment lifecycle (pain.001 -> orchestration -> sanctions screening -> SWIFT messaging MT103 / pacs.008 -> HSM signing -> RTGS settlement pacs.009 -> archive), extended with two Canadian domestic settlement endpoints: Lynx (Payments Canada RTGS, over SWIFTNet) and the Real-Time Rail (RTR, Payments Canada, ISO 20022 over JSON/REST). Each asset carries a DOCUMENTED / INFERRED confidence label.\n"
     },
     "authors": [
       {
@@ -70,6 +70,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model signing primitive; RSA-2048 is quantum-vulnerable per NIST."
         }
       ]
     },
@@ -125,6 +133,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P1-CRITICAL"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model key transport; RSA-OAEP is quantum-vulnerable."
         }
       ]
     },
@@ -179,6 +195,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model EC signature; quantum-vulnerable per NIST."
         }
       ]
     },
@@ -232,6 +256,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P1-CRITICAL"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model EC key agreement; HNDL-exposed."
         }
       ]
     },
@@ -285,6 +317,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P4-MONITOR"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SHA-2 is standard across SWIFT/ISO 20022; Grover-only, quantum-resistant."
         }
       ]
     },
@@ -342,6 +382,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P4-MONITOR"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "AES-256 is quantum-resistant (Grover halves to 128-bit)."
         }
       ]
     },
@@ -396,6 +444,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P4-MONITOR"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "HMAC-SHA-256 (e.g., SWIFT LAU pattern); quantum-resistant."
         }
       ]
     },
@@ -450,6 +506,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "TARGET"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "NIST FIPS 204 standard; Cyber Centre ITSP.40.111 recommends ML-DSA."
         }
       ]
     },
@@ -505,6 +569,201 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "TARGET"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "NIST FIPS 203 standard; Cyber Centre ITSP.40.111 recommends ML-KEM."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/rsa-4096-ca-root",
+      "name": "RSA-4096 (SWIFTNet PKI CA Root)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "4096",
+          "padding": "pkcs1v15",
+          "classicalSecurityLevel": 128,
+          "nistQuantumSecurityLevel": 0,
+          "cryptoFunctions": [
+            "sign",
+            "verify"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "1.2.840.113549.1.1.11"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "RSASSA-PKCS1-v1_5"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Lynx: SWIFTNet PKI trust anchor"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Root CA signing subscriber certificates"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Shor breaks RSA \u2014 CA compromise / trust-chain forgery"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-87 (long-lived root)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SWIFT documents the SWIFTNet PKI CA root as 4096-bit RSA; managed by SWIFT, not the participant."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/ml-dsa-87",
+      "name": "ML-DSA-87",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "ML-DSA-87",
+          "classicalSecurityLevel": 256,
+          "nistQuantumSecurityLevel": 5,
+          "cryptoFunctions": [
+            "sign",
+            "verify"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "2.16.840.1.101.3.4.3.19"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "ML-DSA"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "TARGET (state): replaces long-lived RSA roots"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "PQC signature for CA roots / long-lived trust anchors (FIPS 204)"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "None known (lattice, Module-LWE/SIS)"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Deploy for CA roots and long-validity certificates"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "TARGET"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "NIST FIPS 204 highest security category; appropriate for long-lived roots per ITSP.40.111."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/algorithm/jws-rs256-es256",
+      "name": "JWS Payload Signature (RS256 / ES256)",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "RS256/ES256",
+          "classicalSecurityLevel": 112,
+          "nistQuantumSecurityLevel": 0,
+          "cryptoFunctions": [
+            "sign",
+            "verify"
+          ],
+          "executionEnvironment": "software-plain-ram"
+        },
+        "oid": "1.2.840.113549.1.1.11"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:algorithm-family",
+          "value": "JWS"
+        },
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "RTR: API payload signing over ISO 20022 JSON"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Digitally signs RTR REST payloads (pacs.008)"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Shor breaks the underlying RSA/ECDSA signing key \u2014 payload forgery"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 (or composite ML-DSA + ECDSA)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "INFERRED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "RTR Participation Guide (Oct 2025) states payloads must be 'encrypted, digitally signed and validated', but the specific JWS algorithm (RS256/ES256) is NOT public \u2014 it sits in the participant-only RTR Exchange API spec."
         }
       ]
     },
@@ -558,6 +817,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P3-MEDIUM"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model legacy corporate channel."
         }
       ]
     },
@@ -610,6 +877,319 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P1-CRITICAL"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model internal mesh; standard TLS 1.3 configuration."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/protocol/lynx-ipsec-vpn",
+      "name": "Lynx Transport \u2014 IPsec VPN (SWIFT Alliance Connect)",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "ipsec",
+          "version": "IKEv2",
+          "cipherSuites": [
+            {
+              "name": "IPsec IKEv2 (RSA-2048 auth, ECDH/DH, AES-256)",
+              "algorithms": [
+                "crypto/algorithm/ecdh-p256",
+                "crypto/algorithm/rsa-2048-pkcs1-sha256",
+                "crypto/algorithm/aes-256-gcm",
+                "crypto/algorithm/sha-256"
+              ]
+            }
+          ]
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Lynx: SWIFTNet transport over Secure IP Network"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Carries Lynx MX messages (pacs.008/009) over SWIFTNet InterAct"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL on ECDH/RSA key establishment; AES-256 bulk cipher is quantum-safe"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-KEM-768 hybrid key establishment (retain AES-256)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SWIFT documents Alliance Connect IPsec with AES + RSA-2048 auth over the Secure IP Network; exact negotiated cipher suite for a given Lynx participant is INFERRED."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/protocol/lynx-tls-gui",
+      "name": "Lynx Web Client / GUI \u2014 TLS 1.2/1.3",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "1.2/1.3",
+          "cipherSuites": [
+            {
+              "name": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+              "algorithms": [
+                "crypto/algorithm/ecdh-p256",
+                "crypto/algorithm/rsa-2048-pkcs1-sha256",
+                "crypto/algorithm/aes-256-gcm",
+                "crypto/algorithm/sha-256"
+              ]
+            }
+          ]
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Lynx: operator / administrative access"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Browser access to Lynx operational GUI"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL on handshake key exchange & certificate authentication"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-KEM-768 hybrid key exchange + ML-DSA certs"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P3-MEDIUM"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "INFERRED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "TLS for the admin GUI is standard practice; specific version/cipher suite is not published by Payments Canada."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/protocol/rtr-ipsec-vpn",
+      "name": "RTR Transport \u2014 IPsec Site-to-Site VPN",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "ipsec",
+          "version": "IKEv2",
+          "cipherSuites": [
+            {
+              "name": "IPsec site-to-site tunnel (RSA/ECDH auth, AES bulk)",
+              "algorithms": [
+                "crypto/algorithm/ecdh-p256",
+                "crypto/algorithm/rsa-2048-pkcs1-sha256",
+                "crypto/algorithm/aes-256-gcm",
+                "crypto/algorithm/sha-256"
+              ]
+            }
+          ]
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "RTR: participant-to-Exchange connectivity"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Carries RTR REST/JSON payment exchange traffic"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL on key establishment; AES bulk cipher quantum-safe"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-KEM-768 hybrid"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "RTR Participation Guide confirms payment-exchange APIs run over a site-to-site VPN / IPsec tunnel; the negotiated cipher suite is INFERRED."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/protocol/rtr-tls-oauth",
+      "name": "RTR Portal / API \u2014 TLS + OAuth 2.0 (IDAM)",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "1.2+",
+          "cipherSuites": [
+            {
+              "name": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+              "algorithms": [
+                "crypto/algorithm/ecdh-p256",
+                "crypto/algorithm/rsa-2048-pkcs1-sha256",
+                "crypto/algorithm/aes-256-gcm",
+                "crypto/algorithm/sha-256"
+              ]
+            }
+          ]
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "RTR: portal access & token-based API authorization"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "HTTPS portal + OAuth 2.0 token-authorized APIs via IDAM"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL on TLS key exchange; OAuth token-signing keys (likely RSA/ECDSA) quantum-vulnerable"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-KEM hybrid TLS + ML-DSA token signing"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P3-MEDIUM"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "INFERRED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "DOCUMENTED that RTR uses TLS/HTTPS, OAuth 2.0 'where possible', and IDAM tokens; TLS version and token-signing algorithm are INFERRED."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/protocol/rtr-sftp-ssh",
+      "name": "RTR Reporting \u2014 SFTP over SSH (public-key auth)",
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "ssh",
+          "version": "SSH-2",
+          "cipherSuites": [
+            {
+              "name": "SSH-2 (public-key auth, ECDH kex, AES)",
+              "algorithms": [
+                "crypto/algorithm/ecdh-p256",
+                "crypto/algorithm/ecdsa-p256",
+                "crypto/algorithm/aes-256-gcm",
+                "crypto/algorithm/sha-256"
+              ]
+            }
+          ]
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "RTR: report retrieval"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "SFTP channel for participant reporting"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "SSH host/user keys (RSA/ECDSA/Ed25519) quantum-vulnerable; HNDL on SSH kex"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "PQC SSH \u2014 ML-KEM key exchange, ML-DSA host keys"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P3-MEDIUM"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "RTR Participation Guide states SFTP reporting requires SSH public-key authentication; specific key algorithm is INFERRED."
         }
       ]
     },
@@ -657,6 +1237,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SWIFTNet subscriber certificates are 2048-bit RSA (SWIFT PKI)."
         }
       ]
     },
@@ -704,6 +1292,69 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P3-MEDIUM"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model corporate client certificate."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/certificate/lynx-swiftnet-cert",
+      "name": "Lynx SWIFTNet PKI Business Certificate",
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "CN=paymentbank-lynx-ca-domestic",
+          "issuerName": "CN=SWIFT PKI Certification Authority",
+          "notValidBefore": "2024-01-01T00:00:00Z",
+          "notValidAfter": "2027-01-01T00:00:00Z",
+          "certificateFormat": "X.509",
+          "signatureAlgorithmRef": "crypto/algorithm/rsa-2048-pkcs1-sha256",
+          "subjectPublicKeyRef": "crypto/key/lynx-signing-key"
+        }
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Lynx: CAD domestic RTGS message signing"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Signs Lynx pacs.008 / pacs.009 / pacs.004 over SWIFTNet InterAct"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "RSA-2048 subject key & signature both quantum-vulnerable"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Re-issue on ML-DSA-65; hybrid cert during transition"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SWIFTNet subscriber certificates are 2048-bit RSA (SWIFT PKI). That this Lynx participant uses a standard SWIFTNet business certificate is INFERRED from Lynx running over SWIFTNet InterAct."
         }
       ]
     },
@@ -755,6 +1406,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SWIFTNet PKI 2048-bit RSA in FIPS 140-2 L3 HSM (platform-derived)."
         }
       ]
     },
@@ -806,6 +1465,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model RTGS signing key; the Project Leap touchpoint."
         }
       ]
     },
@@ -857,6 +1524,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P3-MEDIUM"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model client authentication key."
         }
       ]
     },
@@ -907,6 +1582,14 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P4-MONITOR"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "FIPS 140-2 L3 HSM master key; AES-256 quantum-resistant."
         }
       ]
     },
@@ -958,6 +1641,249 @@
         {
           "name": "payments-pqc:migration-priority",
           "value": "P1-CRITICAL"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "Reference-model archive key-wrap; illustrative of standard envelope encryption."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/lynx-signing-key",
+      "name": "Lynx Message-Signing Private Key (SWIFTNet)",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "id": "ecfd328d-d036-59b5-a7b0-38f6b49eaba7",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/rsa-2048-pkcs1-sha256",
+          "creationDate": "2024-01-01T00:00:00Z",
+          "size": 2048,
+          "securedBy": {
+            "mechanism": "SWIFT HSM (FIPS 140-2 Level 3)",
+            "algorithmRef": "crypto/algorithm/aes-256-gcm"
+          }
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Lynx: HSM key storage & signing"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Signs Lynx settlement messages (proof of origin / non-repudiation)"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Forgery of Lynx settlement authorisation post-Q-day"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 key pair (payload ~13x larger than RSA-2048 sig)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SWIFTNet PKI uses 2048-bit RSA keys in FIPS 140-2 L3 HSMs; Lynx TSP-005 confirms signature verification ('verified with decrypted signature'). Key size is platform-derived (SWIFT), not restated by Payments Canada."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/lynx-hsm-key",
+      "name": "Lynx HSM Master Key (SWIFT HSM)",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "secret-key",
+          "id": "1409a8c5-6d92-567d-a411-139bbdf3bfe7",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/aes-256-gcm",
+          "creationDate": "2023-01-01T00:00:00Z",
+          "size": 256,
+          "securedBy": {
+            "mechanism": "SWIFT HSM hardware root of trust (FIPS 140-2 L3)"
+          }
+        },
+        "oid": "2.16.840.1.101.3.4.1.46"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "Lynx: HSM key storage"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Protects Lynx RSA signing keys at rest"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Grover only \u2014 AES-256 remains safe; but HSM firmware must gain PQC support"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "Retain AES-256; migrate to PQC-capable HSM (FIPS 140-3 L3 + PQC pending)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "False"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P4-MONITOR"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "DOCUMENTED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "SWIFT HSM standard is FIPS 140-2 L3; no FIPS 140-3 L3 CMVP validation covering PQC inside the boundary exists as of early 2026 (possibly 2027) \u2014 an external dependency."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/rtr-signing-key",
+      "name": "RTR API Payload-Signing Key (JWS)",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "id": "979d3089-0bf5-5d0f-a87b-2335b6d64260",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/jws-rs256-es256",
+          "creationDate": "2026-01-01T00:00:00Z",
+          "size": 2048,
+          "securedBy": {
+            "mechanism": "HSM (INFERRED \u2014 Vocalink platform precedent)",
+            "algorithmRef": "crypto/algorithm/aes-256-gcm"
+          }
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "RTR: real-time payment exchange signing"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Signs RTR pacs.008 REST payloads (JWS)"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "Forgery of real-time payment instructions post-Q-day"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-DSA-65 (or composite ML-DSA + ECDSA)"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P2-HIGH"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "INFERRED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "DOCUMENTED that RTR payloads are signed; the key algorithm, size, and HSM custody are INFERRED from Vocalink/Interac platform precedent (UK Faster Payments, TCH RTP) and are gated in the participant-only RTR Exchange API spec."
+        }
+      ]
+    },
+    {
+      "type": "cryptographic-asset",
+      "bom-ref": "crypto/key/rtr-npfs-key",
+      "name": "RTR NPFS Fraud-API Auth Key",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key",
+          "id": "2be2d5ad-a9af-5acf-a9f2-8be54359df0a",
+          "state": "active",
+          "algorithmRef": "crypto/algorithm/ecdsa-p256",
+          "creationDate": "2026-01-01T00:00:00Z",
+          "size": 256,
+          "securedBy": {
+            "mechanism": "Software / HSM keystore (INFERRED)",
+            "algorithmRef": "crypto/algorithm/aes-256-gcm"
+          }
+        },
+        "oid": "1.2.840.10045.2.1"
+      },
+      "properties": [
+        {
+          "name": "payments-pqc:lifecycle-stage",
+          "value": "RTR: National Payment Fraud Services API"
+        },
+        {
+          "name": "payments-pqc:touchpoint",
+          "value": "Authenticates the mandatory Central Fraud Analytics score call per payment"
+        },
+        {
+          "name": "payments-pqc:quantum-vulnerable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:threat",
+          "value": "HNDL + authentication forgery on the fraud-scoring API channel"
+        },
+        {
+          "name": "payments-pqc:target-algorithm",
+          "value": "ML-KEM hybrid TLS + ML-DSA authentication"
+        },
+        {
+          "name": "payments-pqc:hybrid-capable",
+          "value": "True"
+        },
+        {
+          "name": "payments-pqc:migration-priority",
+          "value": "P3-MEDIUM"
+        },
+        {
+          "name": "payments-pqc:confidence",
+          "value": "INFERRED"
+        },
+        {
+          "name": "payments-pqc:confidence-note",
+          "value": "DOCUMENTED that NPFS (Central Fraud Analytics, Central Risk List, Confirmation of Payee) is mandatory and API-delivered; the channel's crypto is INFERRED."
         }
       ]
     }
@@ -1013,6 +1939,27 @@
       ]
     },
     {
+      "ref": "lifecycle/6a. Lynx \u2014 CAD domestic RTGS (pacs.009) [DOCUMENTED]",
+      "dependsOn": [
+        "crypto/certificate/lynx-swiftnet-cert",
+        "crypto/key/lynx-signing-key",
+        "crypto/key/lynx-hsm-key",
+        "crypto/protocol/lynx-ipsec-vpn",
+        "crypto/protocol/lynx-tls-gui",
+        "crypto/algorithm/rsa-4096-ca-root"
+      ]
+    },
+    {
+      "ref": "lifecycle/6b. RTR \u2014 Real-Time Rail (pacs.008, ISO 20022/JSON) [part INFERRED]",
+      "dependsOn": [
+        "crypto/key/rtr-signing-key",
+        "crypto/protocol/rtr-ipsec-vpn",
+        "crypto/protocol/rtr-tls-oauth",
+        "crypto/protocol/rtr-sftp-ssh",
+        "crypto/key/rtr-npfs-key"
+      ]
+    },
+    {
       "ref": "crypto/certificate/swift-pki-ee-cert",
       "dependsOn": [
         "crypto/algorithm/rsa-2048-pkcs1-sha256",
@@ -1024,6 +1971,13 @@
       "dependsOn": [
         "crypto/algorithm/ecdsa-p256",
         "crypto/key/ecdsa-p256-client-key"
+      ]
+    },
+    {
+      "ref": "crypto/certificate/lynx-swiftnet-cert",
+      "dependsOn": [
+        "crypto/algorithm/rsa-2048-pkcs1-sha256",
+        "crypto/key/lynx-signing-key"
       ]
     },
     {
@@ -1058,6 +2012,33 @@
       "dependsOn": [
         "crypto/algorithm/aes-256-gcm",
         "crypto/algorithm/rsa-2048-oaep"
+      ]
+    },
+    {
+      "ref": "crypto/key/lynx-signing-key",
+      "dependsOn": [
+        "crypto/algorithm/rsa-2048-pkcs1-sha256",
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "crypto/key/lynx-hsm-key",
+      "dependsOn": [
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "crypto/key/rtr-signing-key",
+      "dependsOn": [
+        "crypto/algorithm/jws-rs256-es256",
+        "crypto/algorithm/aes-256-gcm"
+      ]
+    },
+    {
+      "ref": "crypto/key/rtr-npfs-key",
+      "dependsOn": [
+        "crypto/algorithm/ecdsa-p256",
+        "crypto/algorithm/aes-256-gcm"
       ]
     }
   ]

@@ -58,6 +58,52 @@ No replacement needed; remediate by parameter size, not algorithm swap.
 | SHA-256 | Grover mildly reduces collision resistance. Prefer SHA-384 for new high-assurance signing. |
 | HMAC-SHA-256 (SWIFT LAU) | MAC security unaffected in practice. Retain. |
 
+## Canadian domestic rails — Lynx & RTR
+
+Two Payments Canada settlement endpoints, added with explicit evidence confidence.
+Every asset carries `payments-pqc:confidence` (`DOCUMENTED` / `INFERRED`) and a
+`confidence-note` in the CBOM — INFERRED assets are never presented as fact.
+
+### Lynx (CAD RTGS) — mostly DOCUMENTED
+Lynx runs over **SWIFTNet InterAct**, so it inherits the SWIFT PKI crypto already
+in this estate. It is the low-risk modelling case — effectively a clone of the
+cross-border SWIFT assets retagged for CAD domestic settlement.
+
+| Asset | Priority | Target | Confidence |
+|---|---|---|---|
+| Lynx message-signing key (`RSA-2048`, SWIFTNet) | P2-HIGH | ML-DSA-65 | DOCUMENTED (SWIFT platform) |
+| SWIFTNet PKI CA root (`RSA-4096`) | P2-HIGH | ML-DSA-87 | DOCUMENTED |
+| Lynx IPsec transport (ECDH/RSA + AES-256) | P2-HIGH | ML-KEM-768 hybrid | DOCUMENTED (SWIFT) |
+| Lynx HSM master key (`AES-256`, FIPS 140-2 L3) | P4-MONITOR | Retain; PQC-capable HSM | DOCUMENTED |
+| Lynx web GUI TLS | P3-MEDIUM | ML-KEM hybrid + ML-DSA certs | INFERRED |
+
+Lynx's PQC migration is effectively **coupled to SWIFT's SwiftNet 8.0 (2027)** PQC
+rollout — Payments Canada largely inherits SWIFT's timeline.
+
+### RTR (Real-Time Rail) — partly INFERRED
+RTR is a modern JSON/REST + IPsec + OAuth/IDAM architecture (Vocalink lineage), not
+SWIFTNet. The Participation Guide confirms signing, encryption, VPN and MFA, but
+**names no algorithms** — so the signing algorithm, TLS version, and HSM mandate are
+INFERRED and flagged as such.
+
+| Asset | Priority | Target | Confidence |
+|---|---|---|---|
+| RTR API payload signature (JWS) | P2-HIGH | ML-DSA-65 / composite | INFERRED (algorithm) |
+| RTR IPsec VPN transport | P2-HIGH | ML-KEM-768 hybrid | DOCUMENTED (tunnel) |
+| RTR portal TLS + OAuth 2.0 (IDAM) | P3-MEDIUM | ML-KEM hybrid + ML-DSA | INFERRED (versions) |
+| RTR SFTP/SSH reporting | P3-MEDIUM | PQC SSH (ML-KEM/ML-DSA) | DOCUMENTED (SSH pubkey) |
+| RTR NPFS fraud-API auth | P3-MEDIUM | ML-KEM hybrid + ML-DSA | INFERRED |
+
+Because RTR is greenfield and launching in 2026 — years before the 2031 deadline —
+it is the natural candidate for **crypto-agility / hybrid-PQC design from
+inception** rather than a later retrofit.
+
+> **Regulatory scope, stated honestly.** Cyber Centre **ITSM.40.001** (2031 high-priority /
+> 2035 full migration) is legally scoped to Government of Canada systems. Payments
+> Canada and Interac are not federal departments, so it applies to Lynx and RTR by
+> **best-practice analogy, Bank of Canada oversight expectations, and procurement
+> pressure** — not direct mandate. Do not overstate its regulatory force.
+
 ## <a name="project-leap"></a>What BIS Project Leap Phase 2 actually found
 
 Project Leap Phase 2 — a collaboration of the **BIS Innovation Hub Eurosystem

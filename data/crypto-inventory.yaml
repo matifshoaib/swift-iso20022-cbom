@@ -1,11 +1,13 @@
 # =====================================================================
 # Cryptographic Inventory — Simulated SWIFT / ISO 20022 Wire-Payment Estate
+# with Canadian domestic settlement endpoints (Lynx + Real-Time Rail)
 # ---------------------------------------------------------------------
 # Single source of truth. `scripts/generate_cbom.py` transforms this into
 # a CycloneDX 1.6 Cryptography Bill of Materials (CBOM).
 #
-# This models a *representative* correspondent-banking wire estate, NOT any
-# real institution's configuration. All keys/certs are illustrative.
+# This models a *representative* correspondent-banking wire estate plus two
+# Canadian domestic settlement rails, NOT any real institution's config.
+# All keys/certs are illustrative.
 #
 # Migration-priority model (Mosca-informed):
 #   P1-CRITICAL  Harvest-Now-Decrypt-Later (HNDL): key establishment /
@@ -17,16 +19,27 @@
 #   P3-MEDIUM    Protocol/version hygiene (TLS 1.2 -> 1.3), ECDSA in certs.
 #   P4-MONITOR   Symmetric / hash primitives — Grover only; remediate by
 #                parameter increase (AES-256, SHA-384), not replacement.
+#
+# Confidence model (evidence honesty — critical for public scrutiny):
+#   DOCUMENTED   Stated in a primary/authoritative source (Payments Canada,
+#                Bank of Canada, SWIFT, Cyber Centre, BIS).
+#   INFERRED     Informed assumption from how the underlying platform
+#                demonstrably works, where the system-specific value is not
+#                public. `confidence_note` records exactly what is documented
+#                vs inferred. INFERRED assets are NEVER presented as fact.
 # =====================================================================
 
 metadata:
-  estate_name: "Correspondent Banking Wire-Payment Estate (Reference Model)"
+  estate_name: "Wire-Payment Estate + Canadian Domestic Rails (Reference Model)"
   author: "Muhammad Atif — Payments PQC Migration Analysis"
   description: >
     Cryptographic dependency map across the cross-border wire-payment
-    lifecycle: corporate initiation (pain.001) -> orchestration ->
-    sanctions screening -> SWIFT messaging (MT103 / pacs.008) -> HSM
-    signing -> RTGS settlement (pacs.009) -> long-term archive.
+    lifecycle (pain.001 -> orchestration -> sanctions screening -> SWIFT
+    messaging MT103 / pacs.008 -> HSM signing -> RTGS settlement pacs.009 ->
+    archive), extended with two Canadian domestic settlement endpoints:
+    Lynx (Payments Canada RTGS, over SWIFTNet) and the Real-Time Rail (RTR,
+    Payments Canada, ISO 20022 over JSON/REST). Each asset carries a
+    DOCUMENTED / INFERRED confidence label.
 
 # ---------------------------------------------------------------------
 # ALGORITHMS
@@ -49,6 +62,8 @@ algorithms:
     target: "ML-DSA-65 (FIPS 204)"
     hybrid_capable: true
     migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model signing primitive; RSA-2048 is quantum-vulnerable per NIST."
 
   - ref: rsa-2048-oaep
     name: "RSA-2048-OAEP"
@@ -67,6 +82,8 @@ algorithms:
     target: "ML-KEM-768 (FIPS 203)"
     hybrid_capable: true
     migration_priority: P1-CRITICAL
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model key transport; RSA-OAEP is quantum-vulnerable."
 
   - ref: ecdsa-p256
     name: "ECDSA-P256-SHA256"
@@ -84,6 +101,8 @@ algorithms:
     target: "ML-DSA-65 (FIPS 204)"
     hybrid_capable: true
     migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model EC signature; quantum-vulnerable per NIST."
 
   - ref: ecdh-p256
     name: "ECDH-P256"
@@ -101,6 +120,8 @@ algorithms:
     target: "ML-KEM-768 (FIPS 203), hybrid X25519+ML-KEM"
     hybrid_capable: true
     migration_priority: P1-CRITICAL
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model EC key agreement; HNDL-exposed."
 
   - ref: sha-256
     name: "SHA-256"
@@ -118,6 +139,8 @@ algorithms:
     target: "Retain; prefer SHA-384 for new high-assurance use"
     hybrid_capable: false
     migration_priority: P4-MONITOR
+    confidence: DOCUMENTED
+    confidence_note: "SHA-2 is standard across SWIFT/ISO 20022; Grover-only, quantum-resistant."
 
   - ref: aes-256-gcm
     name: "AES-256-GCM"
@@ -136,6 +159,8 @@ algorithms:
     target: "Retain at 256-bit"
     hybrid_capable: false
     migration_priority: P4-MONITOR
+    confidence: DOCUMENTED
+    confidence_note: "AES-256 is quantum-resistant (Grover halves to 128-bit)."
 
   - ref: hmac-sha256
     name: "HMAC-SHA-256"
@@ -153,6 +178,8 @@ algorithms:
     target: "Retain"
     hybrid_capable: false
     migration_priority: P4-MONITOR
+    confidence: DOCUMENTED
+    confidence_note: "HMAC-SHA-256 (e.g., SWIFT LAU pattern); quantum-resistant."
 
   - ref: ml-dsa-65
     name: "ML-DSA-65"
@@ -170,6 +197,8 @@ algorithms:
     target: "Deploy (hybrid with existing signer during transition)"
     hybrid_capable: true
     migration_priority: TARGET
+    confidence: DOCUMENTED
+    confidence_note: "NIST FIPS 204 standard; Cyber Centre ITSP.40.111 recommends ML-DSA."
 
   - ref: ml-kem-768
     name: "ML-KEM-768"
@@ -187,6 +216,67 @@ algorithms:
     target: "Deploy hybrid X25519+ML-KEM-768"
     hybrid_capable: true
     migration_priority: TARGET
+    confidence: DOCUMENTED
+    confidence_note: "NIST FIPS 203 standard; Cyber Centre ITSP.40.111 recommends ML-KEM."
+
+  # --- Canadian-rails algorithms ---
+  - ref: rsa-4096-ca-root
+    name: "RSA-4096 (SWIFTNet PKI CA Root)"
+    primitive: signature
+    algorithmFamily: RSASSA-PKCS1-v1_5
+    parameterSetIdentifier: "4096"
+    padding: pkcs1v15
+    cryptoFunctions: [sign, verify]
+    classicalSecurityLevel: 128
+    nistQuantumSecurityLevel: 0
+    oid: "1.2.840.113549.1.1.11"
+    lifecycle_stage: "Lynx: SWIFTNet PKI trust anchor"
+    touchpoint: "Root CA signing subscriber certificates"
+    quantum_vulnerable: true
+    threat: "Shor breaks RSA — CA compromise / trust-chain forgery"
+    target: "ML-DSA-87 (long-lived root)"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "SWIFT documents the SWIFTNet PKI CA root as 4096-bit RSA; managed by SWIFT, not the participant."
+
+  - ref: ml-dsa-87
+    name: "ML-DSA-87"
+    primitive: signature
+    algorithmFamily: ML-DSA
+    parameterSetIdentifier: "ML-DSA-87"
+    cryptoFunctions: [sign, verify]
+    classicalSecurityLevel: 256
+    nistQuantumSecurityLevel: 5
+    oid: "2.16.840.1.101.3.4.3.19"
+    lifecycle_stage: "TARGET (state): replaces long-lived RSA roots"
+    touchpoint: "PQC signature for CA roots / long-lived trust anchors (FIPS 204)"
+    quantum_vulnerable: false
+    threat: "None known (lattice, Module-LWE/SIS)"
+    target: "Deploy for CA roots and long-validity certificates"
+    hybrid_capable: true
+    migration_priority: TARGET
+    confidence: DOCUMENTED
+    confidence_note: "NIST FIPS 204 highest security category; appropriate for long-lived roots per ITSP.40.111."
+
+  - ref: jws-rs256-es256
+    name: "JWS Payload Signature (RS256 / ES256)"
+    primitive: signature
+    algorithmFamily: JWS
+    parameterSetIdentifier: "RS256/ES256"
+    cryptoFunctions: [sign, verify]
+    classicalSecurityLevel: 112
+    nistQuantumSecurityLevel: 0
+    oid: "1.2.840.113549.1.1.11"
+    lifecycle_stage: "RTR: API payload signing over ISO 20022 JSON"
+    touchpoint: "Digitally signs RTR REST payloads (pacs.008)"
+    quantum_vulnerable: true
+    threat: "Shor breaks the underlying RSA/ECDSA signing key — payload forgery"
+    target: "ML-DSA-65 (or composite ML-DSA + ECDSA)"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+    confidence: INFERRED
+    confidence_note: "RTR Participation Guide (Oct 2025) states payloads must be 'encrypted, digitally signed and validated', but the specific JWS algorithm (RS256/ES256) is NOT public — it sits in the participant-only RTR Exchange API spec."
 
 # ---------------------------------------------------------------------
 # PROTOCOLS
@@ -206,6 +296,8 @@ protocols:
     target: "TLS 1.3 + hybrid X25519+ML-KEM-768"
     hybrid_capable: true
     migration_priority: P3-MEDIUM
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model legacy corporate channel."
 
   - ref: tls-1-3-mesh
     name: "TLSv1.3 (Internal Service Mesh)"
@@ -221,6 +313,95 @@ protocols:
     target: "Hybrid X25519+ML-KEM-768 key exchange"
     hybrid_capable: true
     migration_priority: P1-CRITICAL
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model internal mesh; standard TLS 1.3 configuration."
+
+  # --- Lynx transport (SWIFT Alliance Connect) ---
+  - ref: lynx-ipsec-vpn
+    name: "Lynx Transport — IPsec VPN (SWIFT Alliance Connect)"
+    type: ipsec
+    version: "IKEv2"
+    lifecycle_stage: "Lynx: SWIFTNet transport over Secure IP Network"
+    touchpoint: "Carries Lynx MX messages (pacs.008/009) over SWIFTNet InterAct"
+    cipher_suites:
+      - name: "IPsec IKEv2 (RSA-2048 auth, ECDH/DH, AES-256)"
+        algorithms: [ecdh-p256, rsa-2048-pkcs1-sha256, aes-256-gcm, sha-256]
+    quantum_vulnerable: true
+    threat: "HNDL on ECDH/RSA key establishment; AES-256 bulk cipher is quantum-safe"
+    target: "ML-KEM-768 hybrid key establishment (retain AES-256)"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "SWIFT documents Alliance Connect IPsec with AES + RSA-2048 auth over the Secure IP Network; exact negotiated cipher suite for a given Lynx participant is INFERRED."
+
+  - ref: lynx-tls-gui
+    name: "Lynx Web Client / GUI — TLS 1.2/1.3"
+    type: tls
+    version: "1.2/1.3"
+    lifecycle_stage: "Lynx: operator / administrative access"
+    touchpoint: "Browser access to Lynx operational GUI"
+    cipher_suites:
+      - name: "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        algorithms: [ecdh-p256, rsa-2048-pkcs1-sha256, aes-256-gcm, sha-256]
+    quantum_vulnerable: true
+    threat: "HNDL on handshake key exchange & certificate authentication"
+    target: "ML-KEM-768 hybrid key exchange + ML-DSA certs"
+    hybrid_capable: true
+    migration_priority: P3-MEDIUM
+    confidence: INFERRED
+    confidence_note: "TLS for the admin GUI is standard practice; specific version/cipher suite is not published by Payments Canada."
+
+  # --- RTR transport & access ---
+  - ref: rtr-ipsec-vpn
+    name: "RTR Transport — IPsec Site-to-Site VPN"
+    type: ipsec
+    version: "IKEv2"
+    lifecycle_stage: "RTR: participant-to-Exchange connectivity"
+    touchpoint: "Carries RTR REST/JSON payment exchange traffic"
+    cipher_suites:
+      - name: "IPsec site-to-site tunnel (RSA/ECDH auth, AES bulk)"
+        algorithms: [ecdh-p256, rsa-2048-pkcs1-sha256, aes-256-gcm, sha-256]
+    quantum_vulnerable: true
+    threat: "HNDL on key establishment; AES bulk cipher quantum-safe"
+    target: "ML-KEM-768 hybrid"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "RTR Participation Guide confirms payment-exchange APIs run over a site-to-site VPN / IPsec tunnel; the negotiated cipher suite is INFERRED."
+
+  - ref: rtr-tls-oauth
+    name: "RTR Portal / API — TLS + OAuth 2.0 (IDAM)"
+    type: tls
+    version: "1.2+"
+    lifecycle_stage: "RTR: portal access & token-based API authorization"
+    touchpoint: "HTTPS portal + OAuth 2.0 token-authorized APIs via IDAM"
+    cipher_suites:
+      - name: "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384"
+        algorithms: [ecdh-p256, rsa-2048-pkcs1-sha256, aes-256-gcm, sha-256]
+    quantum_vulnerable: true
+    threat: "HNDL on TLS key exchange; OAuth token-signing keys (likely RSA/ECDSA) quantum-vulnerable"
+    target: "ML-KEM hybrid TLS + ML-DSA token signing"
+    hybrid_capable: true
+    migration_priority: P3-MEDIUM
+    confidence: INFERRED
+    confidence_note: "DOCUMENTED that RTR uses TLS/HTTPS, OAuth 2.0 'where possible', and IDAM tokens; TLS version and token-signing algorithm are INFERRED."
+
+  - ref: rtr-sftp-ssh
+    name: "RTR Reporting — SFTP over SSH (public-key auth)"
+    type: ssh
+    version: "SSH-2"
+    lifecycle_stage: "RTR: report retrieval"
+    touchpoint: "SFTP channel for participant reporting"
+    cipher_suites:
+      - name: "SSH-2 (public-key auth, ECDH kex, AES)"
+        algorithms: [ecdh-p256, ecdsa-p256, aes-256-gcm, sha-256]
+    quantum_vulnerable: true
+    threat: "SSH host/user keys (RSA/ECDSA/Ed25519) quantum-vulnerable; HNDL on SSH kex"
+    target: "PQC SSH — ML-KEM key exchange, ML-DSA host keys"
+    hybrid_capable: true
+    migration_priority: P3-MEDIUM
+    confidence: DOCUMENTED
+    confidence_note: "RTR Participation Guide states SFTP reporting requires SSH public-key authentication; specific key algorithm is INFERRED."
 
 # ---------------------------------------------------------------------
 # CERTIFICATES
@@ -242,6 +423,8 @@ certificates:
     target: "Re-issue on ML-DSA-65; hybrid cert during transition"
     hybrid_capable: true
     migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "SWIFTNet subscriber certificates are 2048-bit RSA (SWIFT PKI)."
 
   - ref: corporate-tls-client-cert
     name: "Corporate Client TLS Certificate"
@@ -259,6 +442,28 @@ certificates:
     target: "ML-DSA-65 re-issue"
     hybrid_capable: true
     migration_priority: P3-MEDIUM
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model corporate client certificate."
+
+  # --- Lynx SWIFTNet PKI business certificate ---
+  - ref: lynx-swiftnet-cert
+    name: "Lynx SWIFTNet PKI Business Certificate"
+    subjectName: "CN=paymentbank-lynx-ca-domestic"
+    issuerName: "CN=SWIFT PKI Certification Authority"
+    signatureAlgorithmRef: rsa-2048-pkcs1-sha256
+    subjectPublicKeyRef: lynx-signing-key
+    certificateFormat: "X.509"
+    notValidBefore: "2024-01-01T00:00:00Z"
+    notValidAfter: "2027-01-01T00:00:00Z"
+    lifecycle_stage: "Lynx: CAD domestic RTGS message signing"
+    touchpoint: "Signs Lynx pacs.008 / pacs.009 / pacs.004 over SWIFTNet InterAct"
+    quantum_vulnerable: true
+    threat: "RSA-2048 subject key & signature both quantum-vulnerable"
+    target: "Re-issue on ML-DSA-65; hybrid cert during transition"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "SWIFTNet subscriber certificates are 2048-bit RSA (SWIFT PKI). That this Lynx participant uses a standard SWIFTNet business certificate is INFERRED from Lynx running over SWIFTNet InterAct."
 
 # ---------------------------------------------------------------------
 # KEYS / RELATED CRYPTO MATERIAL
@@ -281,6 +486,8 @@ keys:
     target: "ML-DSA-65 key pair"
     hybrid_capable: true
     migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "SWIFTNet PKI 2048-bit RSA in FIPS 140-2 L3 HSM (platform-derived)."
 
   - ref: rtgs-liquidity-signing-key
     name: "RTGS Liquidity-Transfer Signing Key"
@@ -299,6 +506,8 @@ keys:
     target: "ML-DSA-65 key pair"
     hybrid_capable: true
     migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model RTGS signing key; the Project Leap touchpoint."
 
   - ref: ecdsa-p256-client-key
     name: "Corporate Client Authentication Key"
@@ -317,6 +526,8 @@ keys:
     target: "ML-DSA-65 key pair"
     hybrid_capable: true
     migration_priority: P3-MEDIUM
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model client authentication key."
 
   - ref: hsm-master-key
     name: "HSM Master Wrapping Key"
@@ -334,6 +545,8 @@ keys:
     target: "Retain at 256-bit"
     hybrid_capable: false
     migration_priority: P4-MONITOR
+    confidence: DOCUMENTED
+    confidence_note: "FIPS 140-2 L3 HSM master key; AES-256 quantum-resistant."
 
   - ref: archive-dek
     name: "Archive Data-Encryption Key"
@@ -352,6 +565,89 @@ keys:
     target: "Re-wrap DEKs under ML-KEM-768; this is the HNDL crux"
     hybrid_capable: true
     migration_priority: P1-CRITICAL
+    confidence: DOCUMENTED
+    confidence_note: "Reference-model archive key-wrap; illustrative of standard envelope encryption."
+
+  # --- Lynx keys ---
+  - ref: lynx-signing-key
+    name: "Lynx Message-Signing Private Key (SWIFTNet)"
+    type: private-key
+    state: active
+    algorithmRef: rsa-2048-pkcs1-sha256
+    size: 2048
+    securedBy_mechanism: "SWIFT HSM (FIPS 140-2 Level 3)"
+    securedBy_algorithmRef: aes-256-gcm
+    creationDate: "2024-01-01T00:00:00Z"
+    oid: "1.2.840.113549.1.1.1"
+    lifecycle_stage: "Lynx: HSM key storage & signing"
+    touchpoint: "Signs Lynx settlement messages (proof of origin / non-repudiation)"
+    quantum_vulnerable: true
+    threat: "Forgery of Lynx settlement authorisation post-Q-day"
+    target: "ML-DSA-65 key pair (payload ~13x larger than RSA-2048 sig)"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+    confidence: DOCUMENTED
+    confidence_note: "SWIFTNet PKI uses 2048-bit RSA keys in FIPS 140-2 L3 HSMs; Lynx TSP-005 confirms signature verification ('verified with decrypted signature'). Key size is platform-derived (SWIFT), not restated by Payments Canada."
+
+  - ref: lynx-hsm-key
+    name: "Lynx HSM Master Key (SWIFT HSM)"
+    type: secret-key
+    state: active
+    algorithmRef: aes-256-gcm
+    size: 256
+    securedBy_mechanism: "SWIFT HSM hardware root of trust (FIPS 140-2 L3)"
+    creationDate: "2023-01-01T00:00:00Z"
+    oid: "2.16.840.1.101.3.4.1.46"
+    lifecycle_stage: "Lynx: HSM key storage"
+    touchpoint: "Protects Lynx RSA signing keys at rest"
+    quantum_vulnerable: false
+    threat: "Grover only — AES-256 remains safe; but HSM firmware must gain PQC support"
+    target: "Retain AES-256; migrate to PQC-capable HSM (FIPS 140-3 L3 + PQC pending)"
+    hybrid_capable: false
+    migration_priority: P4-MONITOR
+    confidence: DOCUMENTED
+    confidence_note: "SWIFT HSM standard is FIPS 140-2 L3; no FIPS 140-3 L3 CMVP validation covering PQC inside the boundary exists as of early 2026 (possibly 2027) — an external dependency."
+
+  # --- RTR keys ---
+  - ref: rtr-signing-key
+    name: "RTR API Payload-Signing Key (JWS)"
+    type: private-key
+    state: active
+    algorithmRef: jws-rs256-es256
+    size: 2048
+    securedBy_mechanism: "HSM (INFERRED — Vocalink platform precedent)"
+    securedBy_algorithmRef: aes-256-gcm
+    creationDate: "2026-01-01T00:00:00Z"
+    oid: "1.2.840.113549.1.1.1"
+    lifecycle_stage: "RTR: real-time payment exchange signing"
+    touchpoint: "Signs RTR pacs.008 REST payloads (JWS)"
+    quantum_vulnerable: true
+    threat: "Forgery of real-time payment instructions post-Q-day"
+    target: "ML-DSA-65 (or composite ML-DSA + ECDSA)"
+    hybrid_capable: true
+    migration_priority: P2-HIGH
+    confidence: INFERRED
+    confidence_note: "DOCUMENTED that RTR payloads are signed; the key algorithm, size, and HSM custody are INFERRED from Vocalink/Interac platform precedent (UK Faster Payments, TCH RTP) and are gated in the participant-only RTR Exchange API spec."
+
+  - ref: rtr-npfs-key
+    name: "RTR NPFS Fraud-API Auth Key"
+    type: private-key
+    state: active
+    algorithmRef: ecdsa-p256
+    size: 256
+    securedBy_mechanism: "Software / HSM keystore (INFERRED)"
+    securedBy_algorithmRef: aes-256-gcm
+    creationDate: "2026-01-01T00:00:00Z"
+    oid: "1.2.840.10045.2.1"
+    lifecycle_stage: "RTR: National Payment Fraud Services API"
+    touchpoint: "Authenticates the mandatory Central Fraud Analytics score call per payment"
+    quantum_vulnerable: true
+    threat: "HNDL + authentication forgery on the fraud-scoring API channel"
+    target: "ML-KEM hybrid TLS + ML-DSA authentication"
+    hybrid_capable: true
+    migration_priority: P3-MEDIUM
+    confidence: INFERRED
+    confidence_note: "DOCUMENTED that NPFS (Central Fraud Analytics, Central Risk List, Confirmation of Payee) is mandatory and API-delivered; the channel's crypto is INFERRED."
 
 # ---------------------------------------------------------------------
 # LIFECYCLE DEPENDENCY EDGES (payment flow -> crypto assets it relies on)
@@ -371,3 +667,7 @@ lifecycle:
     depends_on: [rtgs-liquidity-signing-key]
   - stage: "7. Archive (7-10 yr retention)"
     depends_on: [archive-dek, rsa-2048-oaep]
+  - stage: "6a. Lynx — CAD domestic RTGS (pacs.009) [DOCUMENTED]"
+    depends_on: [lynx-swiftnet-cert, lynx-signing-key, lynx-hsm-key, lynx-ipsec-vpn, lynx-tls-gui, rsa-4096-ca-root]
+  - stage: "6b. RTR — Real-Time Rail (pacs.008, ISO 20022/JSON) [part INFERRED]"
+    depends_on: [rtr-signing-key, rtr-ipsec-vpn, rtr-tls-oauth, rtr-sftp-ssh, rtr-npfs-key]

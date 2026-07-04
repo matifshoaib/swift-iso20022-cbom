@@ -78,10 +78,12 @@ def main() -> int:
 
     # 4. risk rollup
     prio = Counter()
+    conf = Counter()
     vuln = 0
     for c in cbom.get("components", []):
         p = prop(c, "migration-priority") or "UNCLASSIFIED"
         prio[p] += 1
+        conf[prop(c, "confidence") or "UNLABELLED"] += 1
         if prop(c, "quantum-vulnerable") == "True":
             vuln += 1
 
@@ -98,6 +100,15 @@ def main() -> int:
             print(f"  {k:<14} {prio[k]}")
     for k, v in prio.items():
         if k not in order:
+            print(f"  {k:<14} {v}")
+
+    print("\nEvidence-confidence rollup")
+    print("-" * 34)
+    for k in ("DOCUMENTED", "INFERRED"):
+        if conf.get(k):
+            print(f"  {k:<14} {conf[k]}")
+    for k, v in conf.items():
+        if k not in ("DOCUMENTED", "INFERRED"):
             print(f"  {k:<14} {v}")
 
     print()

@@ -10,8 +10,9 @@ A machine-readable **Cryptography Bill of Materials (CBOM)** that maps where
 quantum-vulnerable cryptography lives across a cross-border wire-payment
 lifecycle — `pain.001` initiation → `pacs.008` assembly → sanctions screening →
 SWIFT messaging (`MT103` / `pacs.008`) → HSM signing → RTGS settlement
-(`pacs.009`) → long-term archive — and ranks each asset for post-quantum
-migration.
+(`pacs.009`) → long-term archive — **extended with two Canadian domestic
+settlement rails, Lynx and the Real-Time Rail (RTR)** — and ranks each asset for
+post-quantum migration.
 
 Built as a **CycloneDX 1.6** artifact (the spec that upstreamed IBM's CBOM
 model) and validated against the official JSON Schema. The payments-domain
@@ -21,9 +22,17 @@ transfer that BIS Project Leap just stress-tested, or that the real
 harvest-now-decrypt-later exposure is the RSA key-wrap on your 10-year payment
 archive.
 
+**Every asset is evidence-labelled.** A `payments-pqc:confidence` property marks
+each one `DOCUMENTED` (stated in a primary source — SWIFT, Payments Canada, BIS,
+Cyber Centre) or `INFERRED` (an informed assumption from how the platform
+demonstrably works), with a `confidence-note` recording exactly what is known vs
+assumed. INFERRED assets — chiefly RTR's signing algorithm and TLS version, which
+sit in the participant-only Exchange API spec — are never presented as fact.
+
 > **Reference model, not a real bank.** Every key, certificate, and endpoint is
-> illustrative — a representative correspondent-banking estate for
-> demonstration. No production configuration or secret is included.
+> illustrative — a representative correspondent-banking estate plus two Canadian
+> domestic rails, for demonstration. No production configuration or secret is
+> included.
 
 ## Why this exists
 
@@ -51,6 +60,7 @@ graph LR
     classDef p3 fill:#a16207,stroke:#713f12,color:#fff;
     classDef p4 fill:#166534,stroke:#14532d,color:#fff;
     classDef stage fill:#1e293b,stroke:#0f172a,color:#fff;
+    classDef inferred fill:#334155,stroke:#0f172a,color:#fff,stroke-dasharray: 5 3;
 
     S1["1 · Initiation<br/>pain.001"]:::stage --> S2["2 · Orchestration<br/>pacs.008"]:::stage --> S3["3 · Screening"]:::stage --> S4["4 · SWIFT Messaging<br/>MT103 / pacs.008"]:::stage --> S5["5 · HSM Signing"]:::stage --> S6["6 · RTGS Settlement<br/>pacs.009"]:::stage --> S7["7 · Archive<br/>7–10 yr"]:::stage
 
@@ -65,11 +75,21 @@ graph LR
     S6 --> E1["Liquidity signing · RSA-2048<br/>→ ML-DSA-65"]:::p2
     S7 --> F1["Archive DEK wrap · RSA-2048<br/>HNDL crux"]:::p1
     S7 --> F2["Archived data · AES-256"]:::p4
+
+    S6 --> LYNX["6a · Lynx<br/>CAD RTGS · pacs.009"]:::stage
+    S6 --> RTR["6b · RTR<br/>Real-Time Rail · pacs.008"]:::stage
+    LYNX --> L1["SWIFTNet signing · RSA-2048"]:::p2
+    LYNX --> L2["IPsec · ECDH/RSA<br/>HNDL"]:::p2
+    LYNX --> L3["SWIFTNet CA root · RSA-4096"]:::p2
+    RTR --> R1["JWS payload signing<br/>algorithm inferred"]:::inferred
+    RTR --> R2["IPsec VPN<br/>HNDL"]:::p2
+    RTR --> R3["TLS + OAuth 2.0<br/>version inferred"]:::inferred
 ```
 
 `P1` critical (HNDL) · `P2` high (signing @ Q-day) · `P3` medium (protocol
-hygiene) · `P4` monitor (symmetric/hash). Full reasoning in
-[`docs/migration-priorities.md`](docs/migration-priorities.md).
+hygiene) · `P4` monitor (symmetric/hash). **Dashed** nodes are `INFERRED` (the
+platform is documented, the specific algorithm/version is not public). Full
+reasoning in [`docs/migration-priorities.md`](docs/migration-priorities.md).
 
 ## The analytical payload
 
@@ -97,11 +117,21 @@ latency remains an open question.) The lesson baked into this repo: the
 deliverable is **crypto-agility**, not a one-time cipher swap. See
 [`docs/migration-priorities.md`](docs/migration-priorities.md#project-leap).
 
+**4 — Two Canadian rails, two very different evidence pictures.** **Lynx** (CAD
+RTGS) runs over **SWIFTNet**, so it inherits the same documented SWIFT PKI crypto
+as the cross-border path — its PQC fate is coupled to **SwiftNet 8.0 (2027)**.
+**RTR** (Real-Time Rail) is a modern JSON/REST + IPsec + OAuth stack whose signing
+algorithm and TLS version sit in a participant-only spec — so those assets are
+modelled **INFERRED** and rendered as such (dashed nodes in the map). Being
+greenfield for 2026, RTR is the natural place to build **hybrid-PQC from
+inception**. Honest `DOCUMENTED`/`INFERRED` labelling on every asset is what keeps
+the artifact credible under expert scrutiny.
+
 ## What's in the repo
 
 | Path | What it is |
 |---|---|
-| [`cbom/payment-estate-cbom.json`](cbom/payment-estate-cbom.json) | The CycloneDX 1.6 CBOM — 18 assets, 12 quantum-vulnerable |
+| [`cbom/payment-estate-cbom.json`](cbom/payment-estate-cbom.json) | The CycloneDX 1.6 CBOM — 31 assets, 23 quantum-vulnerable (26 documented / 5 inferred) |
 | [`data/crypto-inventory.yaml`](data/crypto-inventory.yaml) | Human-editable source of truth |
 | [`scripts/generate_cbom.py`](scripts/generate_cbom.py) | YAML → CBOM generator (single-source-of-truth design) |
 | [`scripts/validate_cbom.py`](scripts/validate_cbom.py) | Structural validation + migration-priority rollup |
@@ -121,19 +151,24 @@ python scripts/validate_cbom.py cbom/payment-estate-cbom.json
 ```
 
 ```
-Assets: 18   Quantum-vulnerable: 12 (67%)
+Assets: 31   Quantum-vulnerable: 23 (74%)
 
 Migration-priority rollup
   P1-CRITICAL    4
-  P2-HIGH        5
-  P3-MEDIUM      3
-  P4-MONITOR     4
-  TARGET         2
+  P2-HIGH        12
+  P3-MEDIUM      7
+  P4-MONITOR     5
+  TARGET         3
+
+Evidence-confidence rollup
+  DOCUMENTED     26
+  INFERRED       5
 ```
 
 CI ([`.github/workflows/validate.yml`](.github/workflows/validate.yml))
-regenerates the CBOM on every push and **fails if the committed JSON is stale**
-— the inventory and the artifact can never silently diverge.
+runs `generate_cbom.py --check` on every push and **fails if the committed JSON
+is out of sync with the inventory** — the artifact can never silently diverge,
+and because generation is deterministic the check is byte-reproducible.
 
 ## Design choices worth noting
 

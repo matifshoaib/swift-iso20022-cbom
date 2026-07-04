@@ -9,7 +9,7 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="SWIFT / ISO 20022 Payments Crypto-Dependency Map + CBOM">
-<meta property="og:description" content="A CycloneDX 1.6 Cryptography Bill of Materials for the wire-payment lifecycle. 18 assets, 12 quantum-vulnerable, validated against the official schema.">
+<meta property="og:description" content="A CycloneDX 1.6 Cryptography Bill of Materials for the wire-payment lifecycle. 31 assets across the wire lifecycle plus Lynx & RTR Canadian rails, evidence-labelled and schema-validated.">
 <meta property="og:url" content="https://matifshoaib.github.io/swift-iso20022-cbom/">
 <meta property="og:image" content="https://matifshoaib.github.io/swift-iso20022-cbom/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -99,9 +99,9 @@
     <h2>One machine-readable inventory</h2>
     <h3>Built with payments context</h3>
     <div class="stats">
-      <div class="stat"><div class="n">18</div><div class="l">cryptographic assets across 7 lifecycle stages</div></div>
-      <div class="stat"><div class="n">12</div><div class="l">quantum-vulnerable (67% of the estate)</div></div>
-      <div class="stat"><div class="n">1.6</div><div class="l">validated against the official CycloneDX JSON Schema</div></div>
+      <div class="stat"><div class="n">31</div><div class="l">cryptographic assets across 7 stages + Lynx &amp; RTR rails</div></div>
+      <div class="stat"><div class="n">23</div><div class="l">quantum-vulnerable (74% of the estate)</div></div>
+      <div class="stat"><div class="n">26/5</div><div class="l">documented / inferred — every asset evidence-labelled</div></div>
     </div>
     <p class="lead" style="margin-top:22px">Generic discovery tells you that you run RSA-2048. It can't tell you it's the signature on a <code>pacs.009</code> liquidity transfer BIS Project Leap just stress-tested, or that the real harvest-now-decrypt-later exposure is the RSA key-wrap on a 10-year payment archive.</p>
   </div>
@@ -121,6 +121,34 @@
       <div class="stage"><div class="sid">S7</div><div class="sn">Archive</div><div class="ss">7–10 yr</div></div>
     </div>
     <p class="lead">Each stage is linked in the CBOM's dependency graph to the crypto assets beneath it — so you can trace, for any point in the flow, exactly which quantum-vulnerable assets it relies on.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Home-market depth · Payments Canada</h2>
+    <h3>Two domestic rails, two evidence pictures</h3>
+    <div class="buckets">
+      <div class="bucket">
+        <div class="tag" style="color:#0F766E">LYNX · CAD HIGH-VALUE RTGS — mostly documented</div>
+        <h4>Runs over SWIFTNet — inherits SWIFT PKI</h4>
+        <ul>
+          <li>Live 2021 (Payments Canada, replaced LVTS); ISO 20022 over <b>SWIFTNet InterAct</b>.</li>
+          <li><b>RSA-2048</b> signing in FIPS 140-2 L3 SWIFT HSMs; <b>RSA-4096</b> SWIFTNet CA root; IPsec (ECDH/RSA + AES-256).</li>
+          <li>PQC fate coupled to SWIFT's <b>SwiftNet 8.0 (2027)</b> rollout.</li>
+        </ul>
+      </div>
+      <div class="bucket" style="border:1px dashed #D35400;">
+        <div class="tag" style="color:#D35400">RTR · REAL-TIME RAIL — partly inferred</div>
+        <h4>Modern JSON/REST + IPsec + OAuth — not SWIFTNet</h4>
+        <ul>
+          <li>Payments Canada; Interac (exchange) + Mastercard/Vocalink (clearing); launch <b>2026</b>.</li>
+          <li>Guide confirms payloads "encrypted, digitally signed and validated" + IPsec + MFA — but the <b>signing algorithm, TLS version &amp; HSM custody are not public</b>, so they're modelled <b>INFERRED</b>.</li>
+          <li>Greenfield for 2026 → the natural place to build <b>hybrid-PQC from inception</b>.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="disc">Every asset in the CBOM carries a DOCUMENTED / INFERRED confidence label with a note on exactly what is known vs assumed. Cyber Centre ITSM.40.001 (2031/2035) applies to Payments Canada and Interac by best-practice analogy and oversight expectations, not direct federal mandate.</p>
   </div>
 </section>
 
@@ -159,7 +187,7 @@
     <h2>Explore the repo</h2>
     <h3>What's inside</h3>
     <table class="files">
-      <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/cbom/payment-estate-cbom.json">cbom/payment-estate-cbom.json</a></td><td>The CycloneDX 1.6 CBOM — 18 assets, 12 quantum-vulnerable.</td></tr>
+      <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/cbom/payment-estate-cbom.json">cbom/payment-estate-cbom.json</a></td><td>The CycloneDX 1.6 CBOM — 31 assets, 23 quantum-vulnerable (26 documented / 5 inferred).</td></tr>
       <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/data/crypto-inventory.yaml">data/crypto-inventory.yaml</a></td><td>Human-editable source of truth.</td></tr>
       <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/scripts/generate_cbom.py">scripts/generate_cbom.py</a></td><td>YAML → CBOM generator (single-source-of-truth design).</td></tr>
       <tr><td><a href="https://github.com/matifshoaib/swift-iso20022-cbom/blob/main/docs/migration-priorities.md">docs/migration-priorities.md</a></td><td>What breaks / can be hybridised + Project Leap analysis.</td></tr>
