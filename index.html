@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SWIFT / ISO 20022 Payments Crypto-Dependency Map + CBOM</title>
-<meta name="description" content="A CycloneDX 1.6 Cryptography Bill of Materials mapping where quantum-vulnerable cryptography lives across the wire-payment lifecycle — and what to migrate first.">
+<meta name="description" content="An illustrative CycloneDX 1.6 Cryptography Bill of Materials (reference model) mapping where quantum-vulnerable cryptography lives across the wire-payment lifecycle — and what to migrate first.">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="SWIFT / ISO 20022 Payments Crypto-Dependency Map + CBOM">
-<meta property="og:description" content="A CycloneDX 1.6 Cryptography Bill of Materials for the wire-payment lifecycle. 31 assets across the wire lifecycle plus Lynx & RTR Canadian rails, evidence-labelled and schema-validated.">
+<meta property="og:description" content="An illustrative CycloneDX 1.6 Cryptography Bill of Materials for the wire-payment lifecycle. A reference model of 31 assets across the wire lifecycle plus Lynx & RTR Canadian rails, evidence-labelled and schema-validated.">
 <meta property="og:url" content="https://matifshoaib.github.io/swift-iso20022-cbom/">
 <meta property="og:image" content="https://matifshoaib.github.io/swift-iso20022-cbom/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -73,6 +73,7 @@
   .callout b{color:#fff}
   footer{padding:40px 0;color:var(--mute);font-size:12px;font-family:"Courier New",monospace}
   .disc{font-size:12px;color:var(--mute);margin-top:16px;font-style:italic}
+.refnote{margin-top:14px;max-width:760px;padding:10px 14px;border-left:3px solid #F5B301;background:rgba(255,255,255,.08);font-size:.95rem;line-height:1.5}
 </style>
 </head>
 <body>
@@ -82,6 +83,7 @@
     <div class="eyebrow">CRYPTOGRAPHY BILL OF MATERIALS &middot; CYCLONEDX 1.6</div>
     <h1>SWIFT / ISO&nbsp;20022 Payments<br>Crypto-Dependency Map + CBOM</h1>
     <p>Where quantum-vulnerable cryptography lives across the wire-payment lifecycle — and what to migrate first. A machine-readable inventory built with payments-domain context, not a generic scan.</p>
+    <p class="refnote"><b>Illustrative reference model.</b> A representative correspondent-banking estate, not a real institution: every key, certificate and endpoint is illustrative, and the counts below describe the model, not measured findings.</p>
     <div class="ramp">
       <span style="background:#E02424"></span><span style="background:#FF7A1A"></span>
       <span style="background:#F5B301"></span><span style="background:#1DA35A"></span>
@@ -99,8 +101,8 @@
     <h2>One machine-readable inventory</h2>
     <h3>Built with payments context</h3>
     <div class="stats">
-      <div class="stat"><div class="n">31</div><div class="l">cryptographic assets across 7 stages + Lynx &amp; RTR rails</div></div>
-      <div class="stat"><div class="n">23</div><div class="l">quantum-vulnerable (74% of the estate)</div></div>
+      <div class="stat"><div class="n">31</div><div class="l">assets in the reference model, across 7 stages + Lynx &amp; RTR rails</div></div>
+      <div class="stat"><div class="n">23</div><div class="l">quantum-vulnerable (74% of the reference model)</div></div>
       <div class="stat"><div class="n">26/5</div><div class="l">documented / inferred — every asset evidence-labelled</div></div>
     </div>
     <p class="lead" style="margin-top:22px">Generic discovery tells you that you run RSA-2048. It can't tell you it's the signature on a <code>pacs.009</code> liquidity transfer BIS Project Leap just stress-tested, or that the real harvest-now-decrypt-later exposure is the RSA key-wrap on a 10-year payment archive.</p>
