@@ -602,11 +602,11 @@ keys:
     touchpoint: "Protects Lynx RSA signing keys at rest"
     quantum_vulnerable: false
     threat: "Grover only — AES-256 remains safe; but HSM firmware must gain PQC support"
-    target: "Retain AES-256; migrate to PQC-capable HSM (FIPS 140-3 L3 + PQC pending)"
+    target: "Retain AES-256; migrate to a PQC-capable HSM (FIPS 140-3 L3 with PQC inside the validated boundary)"
     hybrid_capable: false
     migration_priority: P4-MONITOR
     confidence: DOCUMENTED
-    confidence_note: "SWIFT HSM standard is FIPS 140-2 L3; no FIPS 140-3 L3 CMVP validation covering PQC inside the boundary exists as of early 2026 — an external dependency."
+    confidence_note: "SWIFT HSMs have historically been FIPS 140-2 L3 validated. FIPS 140-3 L3 HSM validations with ML-KEM and ML-DSA inside the boundary began appearing in 2026 (e.g. NIST CMVP certificate #5497, August 2026); whether SWIFT-approved HSMs gain them, and when, is an external dependency."
 
   # --- RTR keys ---
   - ref: rtr-signing-key

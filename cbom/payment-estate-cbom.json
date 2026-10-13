@@ -1,10 +1,10 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.6",
-  "serialNumber": "urn:uuid:e6e05e32-b3bd-5758-afed-4f0053554f56",
+  "serialNumber": "urn:uuid:5c2e2c64-0664-54e5-ba68-9f037b874aea",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-10-13T00:22:04Z",
+    "timestamp": "2026-10-13T02:10:43Z",
     "component": {
       "type": "application",
       "bom-ref": "estate/wire-payment",
@@ -1749,7 +1749,7 @@
         },
         {
           "name": "payments-pqc:target-algorithm",
-          "value": "Retain AES-256; migrate to PQC-capable HSM (FIPS 140-3 L3 + PQC pending)"
+          "value": "Retain AES-256; migrate to a PQC-capable HSM (FIPS 140-3 L3 with PQC inside the validated boundary)"
         },
         {
           "name": "payments-pqc:hybrid-capable",
@@ -1765,7 +1765,7 @@
         },
         {
           "name": "payments-pqc:confidence-note",
-          "value": "SWIFT HSM standard is FIPS 140-2 L3; no FIPS 140-3 L3 CMVP validation covering PQC inside the boundary exists as of early 2026 \u2014 an external dependency."
+          "value": "SWIFT HSMs have historically been FIPS 140-2 L3 validated. FIPS 140-3 L3 HSM validations with ML-KEM and ML-DSA inside the boundary began appearing in 2026 (e.g. NIST CMVP certificate #5497, August 2026); whether SWIFT-approved HSMs gain them, and when, is an external dependency."
         }
       ]
     },
