@@ -606,7 +606,7 @@ keys:
     hybrid_capable: false
     migration_priority: P4-MONITOR
     confidence: DOCUMENTED
-    confidence_note: "SWIFT HSM standard is FIPS 140-2 L3; no FIPS 140-3 L3 CMVP validation covering PQC inside the boundary exists as of early 2026 (possibly 2027) — an external dependency."
+    confidence_note: "SWIFT HSM standard is FIPS 140-2 L3; no FIPS 140-3 L3 CMVP validation covering PQC inside the boundary exists as of early 2026 — an external dependency."
 
   # --- RTR keys ---
   - ref: rtr-signing-key

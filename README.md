@@ -39,9 +39,10 @@ sit in the participant-only Exchange API spec — are never presented as fact.
 The regulatory clock on payments cryptography is concrete:
 
 - **NIST** finalised the PQC standards — **FIPS 203 (ML-KEM), 204 (ML-DSA), 205
-  (SLH-DSA)** — on 13 Aug 2024, and **NIST IR 8547** sets RSA-2048 / ECC-P-256
+  (SLH-DSA)** — on 13 Aug 2024, and **NIST IR 8547** (initial public draft) proposes RSA-2048 / ECC-P-256
   as **deprecated after 2030, disallowed after 2035**.
-- **Canada's Cyber Centre (ITSM.40.001)** requires high-priority systems
+- **Canada's Cyber Centre (ITSM.40.001)** sets a roadmap for Government of
+  Canada systems (banks follow it as best practice, not mandate): high-priority systems
   migrated by **end-2031**, the rest by **end-2035**.
 - **BIS Project Leap Phase 2** (BIS Innovation Hub, Banca d'Italia, Banque de
   France, Deutsche Bundesbank, Nexi-Colt and **SWIFT**) tested PQC signatures in
@@ -103,15 +104,16 @@ these into one "fix RSA" bucket is the most common prioritisation mistake.
 
 **2 — The archive key-wrap is the sharpest exposure.** The bulk archive is
 AES-256 (safe), but its data-encryption keys are wrapped with **RSA-2048-OAEP**.
-A recorded wrapped-DEK today is decryptable post-Q-day, unlocking 7–10 years of
+A wrapped DEK recorded today, together with the encrypted archive, could be unwrapped once a CRQC exists, unlocking 7–10 years of
 payment records and PII. This asset — not the flashy SWIFT signature — is the
 `P1` an analyst should raise first.
 
-**3 — Project Leap says "swap the algorithm" underestimates the work.** At the
-ISO 20022 Business Application Header, a Dilithium (Round-3, Level-3) signature
-of **3,293 bytes** replaced a **256-byte** RSA-2048 signature — a **~12.9×**
-size increase that **overflowed TARGET2's message buffers** and forced
-component redevelopment. (Leap tested Dilithium Round 3, not the final ML-DSA,
+**3 — Project Leap says "swap the algorithm" underestimates the work.** Replacing the
+RSA signature on T2 liquidity transfers with a post-quantum one required
+**modifying numerous system components**, including a new component for
+post-quantum signature verification, and showed **significant performance
+differences** between the algorithms. For scale, an ML-DSA-65 signature is
+**3,309 bytes** versus **256 bytes** for RSA-2048 (FIPS 204). (Leap tested Dilithium Round 3, not the final ML-DSA,
 and used software key files rather than physical HSMs — so production HSM
 latency remains an open question.) The lesson baked into this repo: the
 deliverable is **crypto-agility**, not a one-time cipher swap. See
@@ -119,7 +121,7 @@ deliverable is **crypto-agility**, not a one-time cipher swap. See
 
 **4 — Two Canadian rails, two very different evidence pictures.** **Lynx** (CAD
 RTGS) runs over **SWIFTNet**, so it inherits the same documented SWIFT PKI crypto
-as the cross-border path — its PQC fate is coupled to **SwiftNet 8.0 (2027)**.
+as the cross-border path — its PQC fate is coupled to **SWIFT's own PQC roadmap** (timing to be confirmed with SWIFT).
 **RTR** (Real-Time Rail) is a modern JSON/REST + IPsec + OAuth stack whose signing
 algorithm and TLS version sit in a participant-only spec — so those assets are
 modelled **INFERRED** and rendered as such (dashed nodes in the map). Being

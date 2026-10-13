@@ -95,8 +95,8 @@ authentication, and SHA-256 hashing. Confidence: the SWIFT-platform crypto is
 **DOCUMENTED** (SWIFT security docs; Lynx TSP-005 confirms signature verification);
 that a given Lynx participant uses the standard SWIFTNet business certificate is a
 platform-derived inference. Quantum exposure mirrors the cross-border path — and
-Lynx's PQC fate is effectively **coupled to SWIFT's SwiftNet 8.0 (2027) PQC
-timeline**.
+Lynx's PQC fate is effectively **coupled to SWIFT's own PQC roadmap for
+SWIFTNet** (confirm current timing with SWIFT; no date is assumed here).
 
 ### 6b · RTR — Real-Time Rail (`pacs.008`, ISO 20022 / JSON)
 The Real-Time Rail (Payments Canada; exchange by Interac, clearing & settlement by

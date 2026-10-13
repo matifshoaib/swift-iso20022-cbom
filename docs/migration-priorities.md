@@ -9,13 +9,14 @@ directly from the machine-readable artifact.
 
 Let **X** = how long the data/decision must stay secure, **Y** = how long
 migration takes, **Z** = time until a cryptographically relevant quantum
-computer (CRQC). If **X + Y > Z**, you are already exposed.
+computer (CRQC). If **X + Y > Z**, you can't finish migrating before that data loses protection: data encrypted today could be decrypted while it still needs to stay secret.
 
 For a bank archive: X ≈ 7–10 years (retention) + the residual value of the data
 well beyond that; Y ≈ multi-year (inventory → hybrid pilots → estate rollout, as
-Project Leap's redevelopment findings show); Z is uncertain but planning anchors
-put meaningful CRQC risk inside the 2030–2035 window. For the archive DEK wrap,
-**X + Y already exceeds plausible Z** — which is why it sits at `P1`.
+Project Leap's redevelopment findings show); Z is uncertain and no date is assumed
+here. But a planning horizon aligned with the 2030–2035 transition deadlines
+(NIST IR 8547 draft, ITSM.40.001) would put **X + Y beyond Z** for the archive
+DEK wrap — which is why it sits at `P1`.
 
 ## Priority tiers
 
@@ -77,8 +78,8 @@ cross-border SWIFT assets retagged for CAD domestic settlement.
 | Lynx HSM master key (`AES-256`, FIPS 140-2 L3) | P4-MONITOR | Retain; PQC-capable HSM | DOCUMENTED |
 | Lynx web GUI TLS | P3-MEDIUM | ML-KEM hybrid + ML-DSA certs | INFERRED |
 
-Lynx's PQC migration is effectively **coupled to SWIFT's SwiftNet 8.0 (2027)** PQC
-rollout — Payments Canada largely inherits SWIFT's timeline.
+Lynx's PQC migration is effectively **coupled to SWIFT's own PQC roadmap** for SWIFTNet (confirm current timing with SWIFT; no date is assumed here) —
+Payments Canada largely inherits SWIFT's timeline.
 
 ### RTR (Real-Time Rail) — partly INFERRED
 RTR is a modern JSON/REST + IPsec + OAuth/IDAM architecture (Vocalink lineage), not
@@ -108,19 +109,21 @@ inception** rather than a later retrofit.
 
 Project Leap Phase 2 — a collaboration of the **BIS Innovation Hub Eurosystem
 Centre, Banca d'Italia, Banque de France, Deutsche Bundesbank, Nexi-Colt and
-SWIFT** — tested post-quantum signatures inside the euro RTGS system **T2 /
-TARGET2**, replacing conventional RSA signatures on liquidity transfers. The
+SWIFT** — tested post-quantum signatures in an operational payment system, the
+Eurosystem's **T2**, replacing conventional RSA signatures on liquidity transfers. The
 final report was published **11 December 2025** (BIS, *othp107*). Key findings
 relevant to this estate:
 
 - **Feasibility confirmed.** All test scenarios executed successfully; invalid
   signatures were correctly rejected. Migrating a live payment system to PQC is
   achievable.
-- **Signature *size* was the headline problem, not just speed.** At the ISO 20022
-  Business Application Header level, a **CRYSTALS-Dilithium (Round 3, NIST Level
-  3) signature of 3,293 bytes replaced a 256-byte RSA-2048 signature — roughly a
-  12.9× increase**. The larger headers **exceeded expected buffer sizes** in
-  TARGET2's message-handling logic, forcing component redevelopment.
+- **Integration, not just a cipher swap.** The report says replacing the RSA
+  signature on liquidity transfers required **modifying numerous system
+  components**, including a new component dedicated to post-quantum signature
+  verification, and observed **significant performance differences** between the
+  traditional and post-quantum algorithms. (The report does not publish
+  byte-level header measurements; for scale, a final-standard ML-DSA-65
+  signature is 3,309 bytes versus 256 bytes for RSA-2048, per FIPS 204.)
 - **They tested Dilithium Round 3, *not* the final ML-DSA.** Due to time
   constraints the team could not test the standardised **ML-DSA (FIPS 204)**;
   they flagged this for future phases. (This repo therefore models the *target*
@@ -136,8 +139,8 @@ relevant to this estate:
 > 11 December 2025 — https://www.bis.org/publ/othp107.htm
 
 **Implication for this CBOM.** The `pacs.009` liquidity-transfer signing key
-(stage 6) is the direct analogue of what Leap stressed. The ~12.9× signature
-inflation is why "just swap the algorithm" underestimates the work: message
+(stage 6) is the direct analogue of what Leap stressed. Much larger signatures, and the
+integration work Leap describes, are why "just swap the algorithm" underestimates the work: message
 schemas, buffer sizing, and throughput budgets across the SWIFT/ISO 20022 chain
 all move when RSA becomes ML-DSA. Crypto-agility — the ability to regenerate this
 inventory and swap targets without re-architecting — is the actual deliverable.

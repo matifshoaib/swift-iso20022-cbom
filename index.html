@@ -135,7 +135,7 @@
         <ul>
           <li>Live 2021 (Payments Canada, replaced LVTS); ISO 20022 over <b>SWIFTNet InterAct</b>.</li>
           <li><b>RSA-2048</b> signing in FIPS 140-2 L3 SWIFT HSMs; <b>RSA-4096</b> SWIFTNet CA root; IPsec (ECDH/RSA + AES-256).</li>
-          <li>PQC fate coupled to SWIFT's <b>SwiftNet 8.0 (2027)</b> rollout.</li>
+          <li>PQC fate coupled to <b>SWIFT's own PQC roadmap</b> (timing to be confirmed with SWIFT).</li>
         </ul>
       </div>
       <div class="bucket" style="border:1px dashed #D35400;">
@@ -162,7 +162,7 @@
         <h4>Key transport &amp; agreement</h4>
         <ul>
           <li>Attack is <b>retroactive</b> — harvest-now-decrypt-later.</li>
-          <li>Anything encrypted today whose secrecy must outlive Q-day is already exposed.</li>
+          <li>Anything encrypted today whose secrecy must outlive Q-day is at risk now: it can be recorded today and decrypted later.</li>
           <li>Target: <b>ML-KEM-768</b> (hybrid X25519+ML-KEM).</li>
         </ul>
       </div>
@@ -177,7 +177,7 @@
       </div>
     </div>
     <div class="callout">
-      <b>BIS Project Leap Phase 2</b> (SWIFT + three central banks, 11 Dec 2025) proved migration is feasible on the live euro T2/TARGET2 system — but a Dilithium signature of <b>3,293 bytes</b> replacing a <b>256-byte</b> RSA-2048 one (~12.9&times;) overflowed message buffers. The deliverable is <b>crypto-agility</b>, not a one-time cipher swap.
+      <b>BIS Project Leap Phase 2</b> (BIS Innovation Hub, three Eurosystem central banks, Nexi-Colt and SWIFT, 11 Dec 2025) showed post-quantum signatures can work on liquidity transfers in the Eurosystem's T2 — but it took <b>modifying numerous system components</b> and showed <b>significant performance differences</b>. For scale, an ML-DSA-65 signature is <b>3,309 bytes</b> versus <b>256 bytes</b> for RSA-2048. The deliverable is <b>crypto-agility</b>, not a one-time cipher swap.
     </div>
   </div>
 </section>
